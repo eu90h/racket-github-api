@@ -186,3 +186,30 @@
 
 (define (github-get-all-public-gists api-req)
   (api-req "/gists/public"))
+
+(define (github-list-public-events api-req)
+  (api-req "/events"))
+
+(define (github-list-repo-events api-req owner repo)
+  (api-req (string-append "/repos/" owner "/" repo "/events")))
+
+(define (github-list-repo-issue-events api-req owner repo)
+  (api-req (string-append "/repos/" owner "/" repo "/issues/events")))
+
+(define (github-list-public-org-events api-req org)
+  (api-req (string-append "/orgs/" org "/events")))
+
+(define (github-list-user-received-events api-req user)
+  (api-req (string-append "/users/" user "/received_events")))
+
+(define (github-list-user-received-public-events api-req user)
+  (api-req (string-append "/users/" user "/received_events/public")))
+
+(define (github-list-user-events api-req user)
+  (api-req (string-append "/users/" user "/events")))
+
+(define (github-list-user-public-events api-req user)
+  (api-req (string-append "/users/" user "/events/public")))
+
+(define (github-list-feeds api-req)
+  (api-req "/feeds"))
