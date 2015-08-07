@@ -105,6 +105,27 @@ To delete a file from a gist, for example @racket["file1.txt"], add an entry to 
 
 @defproc[(github-get-all-public-gists [api-req github-api-req/c]) api-response/c]
 
+@section{Examples}
+
+@racketblock[(define new-gist-id
+               (let ([response (github-create-gist github-req
+                                                   (list (cons "file1.txt" "blah blah blah")
+                                                         (cons "file2.txt" "yadda yadda yadda")))])
+                 (hash-ref response 'id)))
+             
+(github-edit-gist github-req new-gist-id
+                 (list (cons "file2.txt" 'delete)))
+
+(github-star-gist github-req new-gist-id)
+(github-gist-starred? github-req new-gist-id)
+(github-unstar-gist github-req new-gist-id)
+(github-gist-starred? github-req new-gist-id)
+
+(github-fork-gist github-req new-gist-id)
+(github-list-gist-forks github-req new-gist-id)
+
+(github-get-user-gists github-req username)]
+
 @section{Events}
 
 @defproc[(github-list-repo-events [api-req github-api-req/c] [repo-owner string?] [repo string?]) api-response/c]
@@ -126,23 +147,3 @@ To delete a file from a gist, for example @racket["file1.txt"], add an entry to 
 @defproc[(github-list-feeds [api-req github-api-req/c]) api-response/c]
 
 @defproc[(github-list-notifications [api-req github-api-req/c]) api-response/c]
-
-@section{Examples}
-@racketblock[(define new-gist-id
-               (let ([response (github-create-gist github-req
-                                                   (list (cons "file1.txt" "blah blah blah")
-                                                         (cons "file2.txt" "yadda yadda yadda")))])
-                 (hash-ref response 'id)))
-             
-(github-edit-gist github-req new-gist-id
-                 (list (cons "file2.txt" 'delete)))
-
-(github-star-gist github-req new-gist-id)
-(github-gist-starred? github-req new-gist-id)
-(github-unstar-gist github-req new-gist-id)
-(github-gist-starred? github-req new-gist-id)
-
-(github-fork-gist github-req new-gist-id)
-(github-list-gist-forks github-req new-gist-id)
-
-(github-get-user-gists github-req username)]
