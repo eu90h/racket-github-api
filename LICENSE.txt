@@ -1,5 +1,5 @@
 github-api
-Copyright (c) 2015 annafeatherstone
+Copyright (c) 2015 eu90h
 
 This package is distributed under the GNU Lesser General Public
 License (LGPL).  This means that you can link github-api into proprietary
