@@ -70,7 +70,7 @@
                  (third (string-split (make-auth-header 'password (list a-username a-password)))))
                 (string-append a-username ":" a-password))
   (check-equal? (base64-decode-string
-                 (third (string-split (make-auth-header 'private-token (list a-username a-token)))))
+                 (third (string-split (make-auth-header 'personal-token (list a-username a-token)))))
                 (string-append a-username ":" a-token))
   (check-equal? (third (string-split (make-auth-header 'oauth2 (list a-token))))
                 a-token))
@@ -138,7 +138,7 @@
 (define (github-edit-gist api-req gist-id files [description ""])
   (define (hash-files files)
     (define updated-files (filter (lambda (file-data) (not (equal? (cdr file-data) null))) files))
-    (define deleted-files (filter (lambda (file-data) (equal? (cdr file-data) null)) files))
+    (define deleted-files (filter (lambda (file-data) (equal? (cdr file-data) 'delete)) files))
     (define tmp (map (lambda (file-data) (cons 'content (cdr file-data))) updated-files))
     (define (loop i new-files)
       (if (>= i (length tmp)) new-files
@@ -151,65 +151,90 @@
                                            'files (hash-files files)))))
   (api-req (string-append "/gists/" gist-id) "PATCH"  data))
 
+(provide github-list-gist-commits)
 (define (github-list-gist-commits api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/commits")))
 
+(provide github-star-gist)
 (define (github-star-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/star") "PUT"))
 
+(provide github-unstar-gist)
 (define (github-unstar-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/star") "DELETE"))
 
+(provide github-gist-starred?)
 (define (github-gist-starred? api-req gist-id)
-  (equal? "204" (second (api-req (string-append "/gists/" gist-id "/star")))))
+  (equal? "204" (second (string-split (api-req (string-append "/gists/" gist-id "/star")) " "))))
 
+(provide github-fork-gist)
 (define (github-fork-gist api-req gist-id)
-  (api-req (string-append "/gists/" gist-id "/forks") "POST" "{}"))
+  (api-req (string-append "/gists/" gist-id "/forks") "POST" ""))
 
+(provide github-list-gist-forks)
 (define (github-list-gist-forks api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/forks")))
 
+(provide github-delete-gist)
 (define (github-delete-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id) "DELETE"))
 
+(provide github-get-gist-revision)
 (define (github-get-gist-revision api-req gist-id sha)
   (api-req (string-append "/gists/" gist-id "/" sha)))
 
-(define (github-get-users-gists api-req username)
+(provide github-get-user-gists)
+(define (github-get-user-gists api-req username)
   (api-req (string-append "/users/" username "/gists")))
 
+(provide github-get-my-gists)
 (define (github-get-my-gists api-req)
   (api-req "/gists"))
 
+(provide github-get-my-starred-gists)
 (define (github-get-my-starred-gists api-req)
   (api-req "/gists/starred"))
 
+(provide github-get-all-public-gists)
 (define (github-get-all-public-gists api-req)
   (api-req "/gists/public"))
 
+(provide github-list-public-events)
 (define (github-list-public-events api-req)
   (api-req "/events"))
 
-(define (github-list-repo-events api-req owner repo)
-  (api-req (string-append "/repos/" owner "/" repo "/events")))
+(provide github-list-repo-events)
+(define (github-list-repo-events api-req repo-owner repo)
+  (api-req (string-append "/repos/" repo-owner "/" repo "/events")))
 
-(define (github-list-repo-issue-events api-req owner repo)
-  (api-req (string-append "/repos/" owner "/" repo "/issues/events")))
+(provide github-list-repo-issue-events)
+(define (github-list-repo-issue-events api-req repo-owner repo)
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/events")))
 
+(provide github-list-public-org-events)
 (define (github-list-public-org-events api-req org)
   (api-req (string-append "/orgs/" org "/events")))
 
+(provide github-list-user-received-events)
 (define (github-list-user-received-events api-req user)
   (api-req (string-append "/users/" user "/received_events")))
 
+(provide github-list-user-received-public-events)
 (define (github-list-user-received-public-events api-req user)
   (api-req (string-append "/users/" user "/received_events/public")))
 
+(provide github-list-user-events)
 (define (github-list-user-events api-req user)
   (api-req (string-append "/users/" user "/events")))
 
+(provide github-list-user-public-events)
 (define (github-list-user-public-events api-req user)
   (api-req (string-append "/users/" user "/events/public")))
 
+(provide github-list-feeds)
 (define (github-list-feeds api-req)
   (api-req "/feeds"))
+
+(provide github-list-notifications)
+(define (github-list-notifications api-req)
+  (api-req "/notifications"))
