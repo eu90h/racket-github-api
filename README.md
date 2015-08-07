@@ -9,4 +9,8 @@ Usage
 * Finally, initiate the bindings: `(define github-api-req (github-api github-identity))`
 * Now do your request: `(github-api-req "/users/plt/repos")`
 
+Installation
+============
+Run `raco pkg install git://github.com/eu90h/racket-github-api` or use DrRacket.
+
 For more detailed usage information and examples, see the included documentation.
