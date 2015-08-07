@@ -3,6 +3,7 @@
 
 (define github-api-req/c (->* (string?) [string? string?] (or/c jsexpr? string?)))
 (provide github-api-req/c
+         github-fork-gist
          (contract-out
           [struct github-identity ([type symbol?] [data (listof string?)])]
           [github-api (-> github-identity? github-api-req/c)]
@@ -60,7 +61,7 @@
 
 (define (make-auth-header type args)
   (case type
-    [(password private-token) (make-basic-auth-header (first args) (second args))]
+    [(password personal-token) (make-basic-auth-header (first args) (second args))]
     [(oauth2) (make-oauth2-header (first args))]))
 
 (module+ test
@@ -83,25 +84,36 @@
 (define port->jsexpr (compose string->jsexpr port->string))
 
 (struct github-identity (type data))
+
+;this is super ugly fix it!
 (define (github-api id [endpoint "api.github.com"] [user-agent "racket/github-@eu90h"])
-  (lambda (req [method "GET"] [data null])
-    (define-values (status-line header-list in-port)
-      (if (null? data) (http-sendrecv endpoint req
-                     #:ssl? (ssl-make-client-context 'auto)
-                     #:headers (list (make-auth-header (github-identity-type id)
-                                                       (github-identity-data id))
-                                     "Accept: application/vnd.github.v3+json"
-                                     (string-append "User-Agent: " user-agent))
-                     
-                     #:method method)
-          (http-sendrecv endpoint req
-                     #:ssl? (ssl-make-client-context 'auto)
-                     #:headers (list (make-auth-header (github-identity-type id)
-                                                       (github-identity-data id))
-                                     "Accept: application/vnd.github.v3+json"
-                                     (string-append "User-Agent: " user-agent))
-                     #:data data
-                     #:method method)))
+  (lambda (req [method "GET"] [data ""])
+    (define-values (status-line header-list in-port) 
+      (if (eq? "PUT" method) (http-sendrecv endpoint req
+                                            #:ssl? (ssl-make-client-context 'auto)
+                                            #:headers (list (make-auth-header (github-identity-type id)
+                                                                              (github-identity-data id))
+                                                            "Content-Length: 0"
+                                                            "Accept: application/vnd.github.v3+json"
+                                                            (string-append "User-Agent: " user-agent))
+                                            
+                                            #:method method)
+          (if (equal? "" data) (http-sendrecv endpoint req
+                                              #:ssl? (ssl-make-client-context 'auto)
+                                              #:headers (list (make-auth-header (github-identity-type id)
+                                                                                (github-identity-data id))
+                                                              "Accept: application/vnd.github.v3+json"
+                                                              (string-append "User-Agent: " user-agent))
+                                              ;  #:data data
+                                              #:method method)
+              (http-sendrecv endpoint req
+                             #:ssl? (ssl-make-client-context 'auto)
+                             #:headers (list (make-auth-header (github-identity-type id)
+                                                               (github-identity-data id))
+                                             "Accept: application/vnd.github.v3+json"
+                                             (string-append "User-Agent: " user-agent))
+                             #:data data
+                             #:method method))))
     (if (or (= 201 (get-status-code (bytes->string/utf-8 status-line)))
             (= 200 (get-status-code (bytes->string/utf-8 status-line))))
         (port->jsexpr in-port)
@@ -138,3 +150,39 @@
                                    (hasheq 'description description
                                            'files (hash-files files)))))
   (api-req (string-append "/gists/" gist-id) "PATCH"  data))
+
+(define (github-list-gist-commits api-req gist-id)
+  (api-req (string-append "/gists/" gist-id "/commits")))
+
+(define (github-star-gist api-req gist-id)
+  (api-req (string-append "/gists/" gist-id "/star") "PUT"))
+
+(define (github-unstar-gist api-req gist-id)
+  (api-req (string-append "/gists/" gist-id "/star") "DELETE"))
+
+(define (github-gist-starred? api-req gist-id)
+  (equal? "204" (second (api-req (string-append "/gists/" gist-id "/star")))))
+
+(define (github-fork-gist api-req gist-id)
+  (api-req (string-append "/gists/" gist-id "/forks") "POST" "{}"))
+
+(define (github-list-gist-forks api-req gist-id)
+  (api-req (string-append "/gists/" gist-id "/forks")))
+
+(define (github-delete-gist api-req gist-id)
+  (api-req (string-append "/gists/" gist-id) "DELETE"))
+
+(define (github-get-gist-revision api-req gist-id sha)
+  (api-req (string-append "/gists/" gist-id "/" sha)))
+
+(define (github-get-users-gists api-req username)
+  (api-req (string-append "/users/" username "/gists")))
+
+(define (github-get-my-gists api-req)
+  (api-req "/gists"))
+
+(define (github-get-my-starred-gists api-req)
+  (api-req "/gists/starred"))
+
+(define (github-get-all-public-gists api-req)
+  (api-req "/gists/public"))
