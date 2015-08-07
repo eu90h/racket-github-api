@@ -145,7 +145,6 @@
           (loop (add1 i) (append new-files (list (cons (if (string? (car (list-ref updated-files i))) (string->symbol (car (list-ref updated-files i))) (car (list-ref updated-files i))) (make-hash (list (list-ref tmp i)))))))))
     (make-hash (append (loop 0 null)
                        (map (lambda (file-data) (cons (string->symbol (car file-data)) "null")) deleted-files))))
-  (displayln (hash-files files))
   (define data (jsexpr->string (if (equal? "" description) (hasheq 'files (hash-files files))
                                    (hasheq 'description description
                                            'files (hash-files files)))))
