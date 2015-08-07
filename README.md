@@ -2,11 +2,6 @@ github-api
 ==========
 Simple github api bindings.
 
-Coming Soon
-===========
-* Wrapped gist api, will push after writing docs and more testing.
-* Wrapped events api
-
 Usage
 =====
 * First: `(require github-api)`
