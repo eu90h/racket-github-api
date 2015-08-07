@@ -6,7 +6,8 @@
          (contract-out
           [struct github-identity ([type symbol?] [data (listof string?)])]
           [github-api (-> github-identity? github-api-req/c)]
-          [github-create-gist (->* (github-api-req/c list?) [string? boolean?] any/c)]))
+          [github-create-gist (->* (github-api-req/c list?) [string? boolean?] any/c)]
+          [github-get-gist (-> github-api-req/c string? any/c)]))
 
 
 (module+ test (require rackunit))
@@ -100,7 +101,8 @@
                                      (string-append "User-Agent: " user-agent))
                      #:data data
                      #:method method)))
-    (if (= 200 (get-status-code (bytes->string/utf-8 status-line)))
+    (if (or (= 201 (get-status-code (bytes->string/utf-8 status-line)))
+            (= 200 (get-status-code (bytes->string/utf-8 status-line))))
         (port->jsexpr in-port)
         (bytes->string/utf-8 status-line))))
 
@@ -117,3 +119,5 @@
                                            'files (hash-files files)))))
   (api-req "/gists" "POST" data))
 
+(define (github-get-gist api-req gist-id)
+  (api-req (string-append "/gists/" gist-id)))
