@@ -7,7 +7,8 @@
           [struct github-identity ([type symbol?] [data (listof string?)])]
           [github-api (-> github-identity? github-api-req/c)]
           [github-create-gist (->* (github-api-req/c list?) [string? boolean?] any/c)]
-          [github-get-gist (-> github-api-req/c string? any/c)]))
+          [github-get-gist (-> github-api-req/c string? any/c)]
+          [github-edit-gist (->* [github-api-req/c string? (listof pair?)] [string?] any/c)]))
 
 
 (module+ test (require rackunit))
@@ -121,3 +122,19 @@
 
 (define (github-get-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id)))
+
+(define (github-edit-gist api-req gist-id files [description ""])
+  (define (hash-files files)
+    (define updated-files (filter (lambda (file-data) (not (equal? (cdr file-data) null))) files))
+    (define deleted-files (filter (lambda (file-data) (equal? (cdr file-data) null)) files))
+    (define tmp (map (lambda (file-data) (cons 'content (cdr file-data))) updated-files))
+    (define (loop i new-files)
+      (if (>= i (length tmp)) new-files
+          (loop (add1 i) (append new-files (list (cons (if (string? (car (list-ref updated-files i))) (string->symbol (car (list-ref updated-files i))) (car (list-ref updated-files i))) (make-hash (list (list-ref tmp i)))))))))
+    (make-hash (append (loop 0 null)
+                       (map (lambda (file-data) (cons (string->symbol (car file-data)) "null")) deleted-files))))
+  (displayln (hash-files files))
+  (define data (jsexpr->string (if (equal? "" description) (hasheq 'files (hash-files files))
+                                   (hasheq 'description description
+                                           'files (hash-files files)))))
+  (api-req (string-append "/gists/" gist-id) "PATCH"  data))
