@@ -1,10 +1,12 @@
 #lang racket/base
 (require net/http-client openssl net/base64 json racket/list racket/string racket/port racket/contract)
 
-(define github-api-get/c (-> string? (or/c jsexpr? string?)))
-(provide github-api-get/c (contract-out
-          [struct github-identity ([type symbol?] [data list?])]
-          [github-api (-> github-identity? github-api-get/c)]))
+(define github-api-req/c (->* (string?) [string? string?] (or/c jsexpr? string?)))
+(provide github-api-req/c
+         (contract-out
+          [struct github-identity ([type symbol?] [data (listof string?)])]
+          [github-api (-> github-identity? github-api-req/c)]
+          [github-create-gist (->* (github-api-req/c list?) [string? boolean?] any/c)]))
 
 
 (module+ test (require rackunit))
@@ -80,15 +82,38 @@
 
 (struct github-identity (type data))
 (define (github-api id [endpoint "api.github.com"] [user-agent "racket/github-@eu90h"])
-  (lambda (req)
+  (lambda (req [method "GET"] [data null])
     (define-values (status-line header-list in-port)
-      (http-sendrecv endpoint req
+      (if (null? data) (http-sendrecv endpoint req
                      #:ssl? (ssl-make-client-context 'auto)
                      #:headers (list (make-auth-header (github-identity-type id)
                                                        (github-identity-data id))
                                      "Accept: application/vnd.github.v3+json"
                                      (string-append "User-Agent: " user-agent))
-                     #:method "GET"))
+                     
+                     #:method method)
+          (http-sendrecv endpoint req
+                     #:ssl? (ssl-make-client-context 'auto)
+                     #:headers (list (make-auth-header (github-identity-type id)
+                                                       (github-identity-data id))
+                                     "Accept: application/vnd.github.v3+json"
+                                     (string-append "User-Agent: " user-agent))
+                     #:data data
+                     #:method method)))
     (if (= 200 (get-status-code (bytes->string/utf-8 status-line)))
         (port->jsexpr in-port)
         (bytes->string/utf-8 status-line))))
+
+(define (github-create-gist api-req files [d ""] [p #f])
+  (define (hash-files files)
+    (define tmp (map (lambda (file-data) (cons 'content (cdr file-data))) files))
+    (define (loop i new-files)
+      (if (>= i (length tmp)) new-files
+          (loop (add1 i) (append new-files (list (cons (if (string? (car (list-ref files i))) (string->symbol (car (list-ref files i))) (car (list-ref files i))) (make-hash (list (list-ref tmp i)))))))))
+    (make-hash (loop 0 null)))
+  (define data (jsexpr->string (if (equal? "" d) (hasheq 'public p 'files (hash-files files))
+                                   (hasheq 'description d
+                                           'public p
+                                           'files (hash-files files)))))
+  (api-req "/gists" "POST" data))
+
