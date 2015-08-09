@@ -1,18 +1,39 @@
 #lang racket/base
 (require net/http-client openssl net/base64 json racket/list racket/string racket/port racket/contract)
 
-(define github-api-req/c (->* (string?) [string? string?] (or/c jsexpr? string?)))
+(define github-api-resp/c (or/c jsexpr? string?))
+(define github-api-req/c (->* (string?) [string? string?] github-api-resp/c))
 (provide github-api-req/c
-         
+         github-api-resp/c
          (contract-out
+          [port->jsexpr (-> port? jsexpr?)]
           [struct github-identity ([type symbol?] [data (listof string?)])]
           [github-api (-> github-identity? github-api-req/c)]
           [get-status-code (-> string? string?)]
-          [github-create-gist (->* (github-api-req/c list?) [string? boolean?] any/c)]
-          [github-get-gist (-> github-api-req/c string? any/c)]
-          [github-edit-gist (->* [github-api-req/c string? (listof pair?)] [string?] any/c)]
-          [github-delete-file-from-gist (-> github-api-req/c string? string? any/c)]
-          [github-fork-gist (-> github-api-req/c string? any/c)]
+          [github-create-gist (->* (github-api-req/c list?) [string? boolean?] github-api-resp/c)]
+          [github-get-gist (-> github-api-req/c string? github-api-resp/c)]
+          [github-edit-gist (->* [github-api-req/c string? (listof pair?)] [string?] github-api-resp/c)]
+          [github-delete-file-from-gist (-> github-api-req/c string? string? github-api-resp/c)]
+          [github-list-gist-commits (-> github-api-req/c string? github-api-resp/c)]
+          [github-star-gist (-> github-api-req/c string? github-api-resp/c)]
+          [github-unstar-gist (-> github-api-req/c string? github-api-resp/c)]
+          [github-gist-starred? (-> github-api-req/c string? boolean?)]               
+          [github-fork-gist (-> github-api-req/c string? github-api-resp/c)]
+          [github-list-gist-forks (-> github-api-req/c string? github-api-resp/c)]
+          [github-delete-gist (-> github-api-req/c string? github-api-resp/c)]
+          [github-get-gist-revision (-> github-api-req/c string? string? github-api-resp/c)]
+          [github-get-user-gists (-> github-api-req/c string? github-api-resp/c)]
+          [github-get-my-gists (-> github-api-req/c github-api-resp/c)]
+          [github-get-my-starred-gists (-> github-api-req/c github-api-resp/c)]
+          [github-get-all-public-gists (-> github-api-req/c github-api-resp/c)]
+          [github-list-public-events (-> github-api-req/c github-api-resp/c)]
+          [github-list-repo-events (-> github-api-req/c  string? string? github-api-resp/c)]
+          [github-list-repo-issue-events (-> github-api-req/c string? string? github-api-resp/c)]
+          [github-list-public-org-events (-> github-api-req/c string? github-api-resp/c)]
+          [github-list-user-received-events (-> github-api-req/c string? github-api-resp/c)]
+          [github-list-user-public-events (-> github-api-req/c string? github-api-resp/c)]
+          [github-list-feeds (-> github-api-req/c github-api-resp/c)]
+          [github-list-notifications (-> github-api-req/c github-api-resp/c)]
           ))
 
 
@@ -144,89 +165,69 @@
 (define (github-delete-file-from-gist api-req gist-id file)
   (github-edit-gist api-req gist-id
                  (list (cons file 'delete))))
-(provide github-list-gist-commits)
+
 (define (github-list-gist-commits api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/commits")))
 
-(provide github-star-gist)
 (define (github-star-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/star") "PUT"))
 
-(provide github-unstar-gist)
 (define (github-unstar-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/star") "DELETE"))
 
-(provide github-gist-starred?)
 (define (github-gist-starred? api-req gist-id)
   (equal? "204" (second (string-split (api-req (string-append "/gists/" gist-id "/star")) " "))))
 
 (define (github-fork-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/forks") "POST" ""))
 
-(provide github-list-gist-forks)
 (define (github-list-gist-forks api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/forks")))
 
-(provide github-delete-gist)
 (define (github-delete-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id) "DELETE"))
 
-(provide github-get-gist-revision)
 (define (github-get-gist-revision api-req gist-id sha)
   (api-req (string-append "/gists/" gist-id "/" sha)))
 
-(provide github-get-user-gists)
 (define (github-get-user-gists api-req username)
   (api-req (string-append "/users/" username "/gists")))
 
-(provide github-get-my-gists)
 (define (github-get-my-gists api-req)
   (api-req "/gists"))
 
-(provide github-get-my-starred-gists)
 (define (github-get-my-starred-gists api-req)
   (api-req "/gists/starred"))
 
-(provide github-get-all-public-gists)
 (define (github-get-all-public-gists api-req)
   (api-req "/gists/public"))
 
-(provide github-list-public-events)
 (define (github-list-public-events api-req)
   (api-req "/events"))
 
-(provide github-list-repo-events)
 (define (github-list-repo-events api-req repo-owner repo)
   (api-req (string-append "/repos/" repo-owner "/" repo "/events")))
 
-(provide github-list-repo-issue-events)
 (define (github-list-repo-issue-events api-req repo-owner repo)
   (api-req (string-append "/repos/" repo-owner "/" repo "/issues/events")))
 
-(provide github-list-public-org-events)
 (define (github-list-public-org-events api-req org)
   (api-req (string-append "/orgs/" org "/events")))
 
-(provide github-list-user-received-events)
 (define (github-list-user-received-events api-req user)
   (api-req (string-append "/users/" user "/received_events")))
 
-(provide github-list-user-received-public-events)
 (define (github-list-user-received-public-events api-req user)
   (api-req (string-append "/users/" user "/received_events/public")))
 
-(provide github-list-user-events)
 (define (github-list-user-events api-req user)
   (api-req (string-append "/users/" user "/events")))
 
-(provide github-list-user-public-events)
 (define (github-list-user-public-events api-req user)
   (api-req (string-append "/users/" user "/events/public")))
 
-(provide github-list-feeds)
 (define (github-list-feeds api-req)
   (api-req "/feeds"))
 
-(provide github-list-notifications)
 (define (github-list-notifications api-req)
   (api-req "/notifications"))
