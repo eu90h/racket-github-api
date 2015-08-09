@@ -3,13 +3,17 @@
 
 (define github-api-req/c (->* (string?) [string? string?] (or/c jsexpr? string?)))
 (provide github-api-req/c
-         github-fork-gist
+         
          (contract-out
           [struct github-identity ([type symbol?] [data (listof string?)])]
           [github-api (-> github-identity? github-api-req/c)]
+          [get-status-code (-> string? string?)]
           [github-create-gist (->* (github-api-req/c list?) [string? boolean?] any/c)]
           [github-get-gist (-> github-api-req/c string? any/c)]
-          [github-edit-gist (->* [github-api-req/c string? (listof pair?)] [string?] any/c)]))
+          [github-edit-gist (->* [github-api-req/c string? (listof pair?)] [string?] any/c)]
+          [github-delete-file-from-gist (-> github-api-req/c string? string? any/c)]
+          [github-fork-gist (-> github-api-req/c string? any/c)]
+          ))
 
 
 (module+ test (require rackunit))
@@ -85,35 +89,22 @@
 
 (struct github-identity (type data))
 
-;this is super ugly fix it!
 (define (github-api id [endpoint "api.github.com"] [user-agent "racket/github-@eu90h"])
+  (define data-methods (list "POST" "PATCH")) ; these http verbs require passing along data to the server
   (lambda (req [method "GET"] [data ""])
-    (define-values (status-line header-list in-port) 
-      (if (eq? "PUT" method) (http-sendrecv endpoint req
-                                            #:ssl? (ssl-make-client-context 'auto)
-                                            #:headers (list (make-auth-header (github-identity-type id)
-                                                                              (github-identity-data id))
-                                                            "Content-Length: 0"
-                                                            "Accept: application/vnd.github.v3+json"
-                                                            (string-append "User-Agent: " user-agent))
-                                            
-                                            #:method method)
-          (if (equal? "" data) (http-sendrecv endpoint req
-                                              #:ssl? (ssl-make-client-context 'auto)
-                                              #:headers (list (make-auth-header (github-identity-type id)
-                                                                                (github-identity-data id))
-                                                              "Accept: application/vnd.github.v3+json"
-                                                              (string-append "User-Agent: " user-agent))
-                                              ;  #:data data
-                                              #:method method)
-              (http-sendrecv endpoint req
-                             #:ssl? (ssl-make-client-context 'auto)
-                             #:headers (list (make-auth-header (github-identity-type id)
-                                                               (github-identity-data id))
-                                             "Accept: application/vnd.github.v3+json"
-                                             (string-append "User-Agent: " user-agent))
-                             #:data data
-                             #:method method))))
+    (define-values (status-line header-list in-port)
+      (let* ([headers (list (make-auth-header (github-identity-type id)
+                                              (github-identity-data id))
+                           "Accept: application/vnd.github.v3+json"
+                           (string-append "User-Agent: " user-agent))])
+        (if (list? (member method data-methods)) (http-sendrecv endpoint req #:ssl? (ssl-make-client-context 'auto)
+                                                  #:headers headers
+                                                  #:method method
+                                                  #:data data)
+            (http-sendrecv endpoint req #:ssl? (ssl-make-client-context 'auto)
+                           #:headers (if (eq? "PUT" method) (append headers (list "Content-Length: 0")) headers)
+                           #:method method))))
+
     (if (or (= 201 (get-status-code (bytes->string/utf-8 status-line)))
             (= 200 (get-status-code (bytes->string/utf-8 status-line))))
         (port->jsexpr in-port)
@@ -150,6 +141,9 @@
                                            'files (hash-files files)))))
   (api-req (string-append "/gists/" gist-id) "PATCH"  data))
 
+(define (github-delete-file-from-gist api-req gist-id file)
+  (github-edit-gist api-req gist-id
+                 (list (cons file 'delete))))
 (provide github-list-gist-commits)
 (define (github-list-gist-commits api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/commits")))
@@ -166,7 +160,6 @@
 (define (github-gist-starred? api-req gist-id)
   (equal? "204" (second (string-split (api-req (string-append "/gists/" gist-id "/star")) " "))))
 
-(provide github-fork-gist)
 (define (github-fork-gist api-req gist-id)
   (api-req (string-append "/gists/" gist-id "/forks") "POST" ""))
 
