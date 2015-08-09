@@ -1,6 +1,6 @@
 github-api
 ==========
-Simple github api bindings.
+Simple GitHub API bindings.
 
 Usage
 =====
@@ -14,4 +14,6 @@ For more detailed usage information and examples, see the included documentation
 Installation
 ============
 Run `raco pkg install git://github.com/eu90h/racket-github-api` or use DrRacket.
+
+To remove, execute `raco remove racket-github-api`
 
