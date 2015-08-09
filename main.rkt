@@ -64,7 +64,7 @@
           [github-get-authenticated-user (->* [github-api-req/c] github-api-resp/c)]
           [github-get-all-users (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
           [github-build-webhook-config (->* [string?]
-                                            [#:content-type string? #:secret? string? #:insecure-ssl string?]
+                                            [#:content-type string? #:secret string? #:insecure-ssl string?]
                                             jsexpr?)]
           [github-hook-repo (->* [github-api-req/c string? string? string? jsexpr?]
                                  [#:events list? #:active boolean?]
