@@ -423,3 +423,11 @@
 (define (github-test-push-hook api-req repo-owner repo hook-id)
   (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id "/tests")
            #:method "POST"))
+
+(define (github-ping-hook api-req repo-owner repo hook-id)
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id "/pings")
+           #:method "POST"))
+(provide github-delete-hook)
+(define (github-delete-hook api-req repo-owner repo hook-id)
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id)
+           #:method "DELETE"))
