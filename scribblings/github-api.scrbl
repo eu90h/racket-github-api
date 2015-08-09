@@ -291,6 +291,7 @@ Gets the gist, returning a @racket[jsexpr?] on success.
                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
+@section{Issues}
 
 @defproc[(github-list-issues [api-req github-api-req/c]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
@@ -308,13 +309,6 @@ Gets the gist, returning a @racket[jsexpr?] on success.
 @defproc[(github-list-repo-issues [api-req github-api-req/c]
                                   [repo-owner string?]
                                   [repo-name string?]
-                             [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
-
-@defproc[(github-get-repo-issue [api-req github-api-req/c]
-                                [repo-owner string?]
-                                [repo-name string?]
-                                [issue-number string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
@@ -339,3 +333,21 @@ Gets the gist, returning a @racket[jsexpr?] on success.
                               [#:labels label (listof string?) null]
                               [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
+
+@defproc[(github-get-repo-issue [api-req github-api-req/c]
+                                [repo-owner string?]
+                                [repo-name string?]
+                                [issue-number string?]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@section{Issue Examples}
+@racketblock[
+ (github-create-issue github-req
+                      "eu90h"
+                      "racket-github-api"
+                      "testing-issues-api"
+                      #:body "this is a test of the issues api"
+                      #:assignee "eu90h"
+                      #:labels (list "woo!" "test"))
+              ]
