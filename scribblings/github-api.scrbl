@@ -9,6 +9,8 @@
 github-api is a wrapper for easily making requests to the GitHub api.
 
 Before you begin making requests to the GitHub api, you must create an identity.
+@section{Authentication & Initialization}
+
 @defstruct[github-identity ([type symbol?] [data list?])]{
  This struct holds your GitHub identity.
 
@@ -34,13 +36,6 @@ Before you begin making requests to the GitHub api, you must create an identity.
  For @racket['oauth], the data will simply be @racket[(list oauth-token)], where @racket[oauth-token]
  is a string.
 }
-@section{A Note on Identity Security}
-According to the GitHub documentation, personal access tokens are equivalent to your password. Never
-give it out (and don't accidently commit your identity!)
-
-Read more about your options for authentication @hyperlink["https://developer.github.com/v3/#authentication"
-                                                           "here"]
-
 @defproc[(github-api [id github-identity?]
                      [#:endpoint endpoint string? "api.github.com"]
                      [#:user-agent user-agent string? "racket-github-api-@eu90h"])
@@ -77,6 +72,15 @@ Finally, @racket[#:media-type] specifies the format in which you wish to receive
 see @hyperlink["https://developer.github.com/v3/media/" "the GitHub api documentation"].
 }
 
+
+@section{A Note on Identity Security}
+According to the GitHub documentation, personal access tokens are equivalent to your password. Never
+give it out (and don't accidently commit your identity!)
+
+Read more about your options for authentication @hyperlink["https://developer.github.com/v3/#authentication"
+                                                           "here"]
+
+
 @section{Example}
 @racketblock[
  (define personal-token "fs52knf535djbfk2je43b2436")
@@ -86,6 +90,7 @@ see @hyperlink["https://developer.github.com/v3/media/" "the GitHub api document
  (define github-req (github-api id))
  (github-req "/users/plt/repos")
  ]
+Here we make a request to get the repositories created by the user plt.
 
 @section{Gists}
 @defproc*[([(github-create-gist [api-req github-api-req/c] [files (listof pair?)]) api-response/c]
