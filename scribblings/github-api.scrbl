@@ -159,66 +159,66 @@ To delete a file from a gist, for example @racket["file1.txt"], add an entry to 
 }
 @defproc[(github-get-gist [api-req github-api-req/c]
                           [gist-id string?]
-                          [#:media-type string? "application/vnd.github.v3+json"])
+                          [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 Gets the gist, returning a @racket[jsexpr?] on success.
 
 @defproc[(github-list-gist-commits [api-req github-api-req/c]
                                    [gist-id string?]
-                                   [#:media-type string? "application/vnd.github.v3+json"])
+                                   [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-star-gist [api-req github-api-req/c]
                            [gist-id string?]
-                           [#:media-type string? "application/vnd.github.v3+json"])
+                           [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-unstar-gist [api-req github-api-req/c]
                              [gist-id string?]
-                             [#:media-type string? "application/vnd.github.v3+json"])
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-gist-starred? [api-req github-api-req/c]
                                [gist-id string?]
-                               [#:media-type string? "application/vnd.github.v3+json"])
+                               [#:media-type media-type string? "application/vnd.github.v3+json"])
          boolean?]
 
 @defproc[(github-fork-gist [api-req github-api-req/c]
                            [gist-id string?]
-                           [#:media-type string? "application/vnd.github.v3+json"])
+                           [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-gist-forks [api-req github-api-req/c]
                                  [gist-id string?]
-                                 [#:media-type string? "application/vnd.github.v3+json"])
+                                 [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-delete-gist [api-req github-api-req/c]
                              [gist-id string?]
-                             [#:media-type string? "application/vnd.github.v3+json"])
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-get-gist-revision [api-req github-api-req/c]
                                    [gist-id string?]
                                    [sha string?]
-                                   [#:media-type string? "application/vnd.github.v3+json"])
+                                   [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-get-user-gists [api-req github-api-req/c]
                                 [user string?]
-                                [#:media-type string? "application/vnd.github.v3+json"])
+                                [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-get-my-gists [api-req github-api-req/c]
-                              [#:media-type string? "application/vnd.github.v3+json"])
+                              [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-get-my-starred-gists [api-req github-api-req/c]
-                                      [#:media-type string? "application/vnd.github.v3+json"])
+                                      [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-get-all-public-gists [api-req github-api-req/c]
-                                      [#:media-type string? "application/vnd.github.v3+json"])
+                                      [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @section{Gist Examples}
@@ -247,52 +247,95 @@ Gets the gist, returning a @racket[jsexpr?] on success.
 @defproc[(github-list-repo-events [api-req github-api-req/c]
                                   [repo-owner string?]
                                   [repo string?]
-                                  [#:media-type string? "application/vnd.github.v3+json"])
+                                  [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-repo-issue-events [api-req github-api-req/c]
                                         [repo-owner string?]
                                         [repo string?]
-                                        [#:media-type string? "application/vnd.github.v3+json"])
+                                        [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-public-org-events [api-req github-api-req/c]
                                         [org string?]
-                                        [#:media-type string? "application/vnd.github.v3+json"])
+                                        [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-user-received-events [api-req github-api-req/c]
                                            [user string?]
-                                           [#:media-type string? "application/vnd.github.v3+json"])
+                                           [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-user-received-public-events [api-req github-api-req/c]
                                                   [user string?]
-                                                  [#:media-type string? "application/vnd.github.v3+json"])
+                                                  [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-user-events [api-req github-api-req/c]
                                   [user string?]
-                                  [#:media-type string? "application/vnd.github.v3+json"])
+                                  [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-user-public-events [api-req github-api-req/c]
                                          [user string?]
-                                         [#:media-type string? "application/vnd.github.v3+json"])
+                                         [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @section{Feeds}
 
 @defproc[(github-list-feeds [api-req github-api-req/c]
-                            [#:media-type string? "application/vnd.github.v3+json"])
+                            [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-notifications [api-req github-api-req/c]
-                                    [#:media-type string? "application/vnd.github.v3+json"])
+                                    [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 
 @defproc[(github-list-issues [api-req github-api-req/c]
-                             [#:media-type string? "application/vnd.github.v3+json"])
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
-                             
+
+@defproc[(github-list-my-issues [api-req github-api-req/c]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-list-org-issues [api-req github-api-req/c]
+                                 [organization string?]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-list-repo-issues [api-req github-api-req/c]
+                                  [repo-owner string?]
+                                  [repo-name string?]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-get-repo-issue [api-req github-api-req/c]
+                                [repo-owner string?]
+                                [repo-name string?]
+                                [issue-number string?]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-create-issue [api-req github-api-req/c]
+                              [repo-owner string?]
+                              [repo-name string?]
+                              [title string?]
+                              [#:body body string? ""]
+                              [#:assignee assignee string? ""]
+                              [#:milestone milestone string? ""]
+                              [#:labels label (listof string?) null]
+                              [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-edit-issue [api-req github-api-req/c]
+                              [repo-owner string?]
+                              [repo-name string?]
+                              [#:title title string? ""]
+                              [#:body body string? ""]
+                              [#:assignee assignee string? ""]
+                              [#:milestone milestone string? ""]
+                              [#:labels label (listof string?) null]
+                              [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
