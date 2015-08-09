@@ -131,9 +131,11 @@ check whether or not the key @racket[truncated] is @racket["true"].
 To get the full contents of the file,
 make a request to the url referenced by the key @racket[raw_url].
 
-For more information see the @hyperlink["https://developer.github.com/v3/gists/#truncation"
+For more information on truncation see the @hyperlink["https://developer.github.com/v3/gists/#truncation"
                                                                                                           "GitHub documentation"]
 
+For additional information on the Gist API, check @hyperlink["https://developer.github.com/v3/gists/#gists"
+                                                             "here"]
 @defproc[(github-create-gist [api-req github-api-req/c]
                            [files (listof pair?)]
                            [#:description description string? ""]
@@ -243,6 +245,8 @@ Gets the gist, returning a @racket[jsexpr?] on success.
 (github-get-user-gists github-req username)]
 
 @section{Events}
+For more information on the Events API, see @hyperlink["https://developer.github.com/v3/activity/events/"
+                                                       "the GitHub documentation"]
 
 @defproc[(github-list-repo-events [api-req github-api-req/c]
                                   [repo-owner string?]
@@ -282,6 +286,8 @@ Gets the gist, returning a @racket[jsexpr?] on success.
          api-response/c]
 
 @section{Feeds}
+For more information about feeds, go @hyperlink["https://developer.github.com/v3/activity/feeds/"
+                                                "here"]
 
 @defproc[(github-list-feeds [api-req github-api-req/c]
                             [#:media-type media-type string? "application/vnd.github.v3+json"])
@@ -292,6 +298,8 @@ Gets the gist, returning a @racket[jsexpr?] on success.
          api-response/c]
 
 @section{Issues}
+For more information about the Issues API, click @hyperlink["https://developer.github.com/v3/issues/"
+                                                            "here"]
 
 @defproc[(github-list-issues [api-req github-api-req/c]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
