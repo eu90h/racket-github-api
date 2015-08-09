@@ -1,6 +1,6 @@
 github-api
 ==========
-Simple GitHub api bindings.
+Simple GitHub API bindings.
 
 Usage
 =====
