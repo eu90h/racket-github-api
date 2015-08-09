@@ -40,9 +40,38 @@
           [github-list-org-issues (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
           [github-list-repo-issues (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-get-repo-issue (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
-          
           [github-list-repo-assignees (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
-
+          [github-check-assignee (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-issue-comments (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-repo-comments (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-single-comment (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-create-comment (->* [github-api-req/c string? string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-edit-comment (->* [github-api-req/c string? string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-delete-comment (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-blob (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-create-blob (->* [github-api-req/c string? string? string?] [string? #:media-type string?] github-api-resp/c)]
+          [github-get-commit (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-create-commit (->* [github-api-req/c string? string? string? string? string?]
+                                     [#:media-type string? #:author string? #:email string? #:data string?]
+                                     github-api-resp/c)]
+          [github-list-orgs (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-list-all-orgs (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-list-user-orgs (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-org (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-org-members (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-pull-requests (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-user (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-authenticated-user (->* [github-api-req/c] github-api-resp/c)]
+          [github-get-all-users (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-build-webhook-config (->* [string?]
+                                            [#:content-type string? #:secret? string? #:insecure-ssl string?]
+                                            jsexpr?)]
+          [github-hook-repo (->* [github-api-req/c string? string? string? jsexpr?]
+                                 [#:events list? #:active boolean?]
+                                 github-api-resp/c)]
+          [github-test-push-hook (->* [github-api-req/c string? string? string?] github-api-resp/c)]
+          [github-ping-hook (->* [github-api-req/c string? string? string?] github-api-resp/c)]
+          [github-delete-hook (->* [github-api-req/c string? string? string?] github-api-resp/c)]
           ;[github- (->* github-api-req/c [#:media-type string?] github-api-resp/c)]
           ))
 
@@ -362,7 +391,6 @@
                                              (append commit-data
                                                      (list (cons 'author author-data)))))))))
 
-
 (define (github-list-orgs api-req #:media-type [media-type ""])
   (api-req "/user/orgs" #:media-type media-type))
 
@@ -390,7 +418,6 @@
 (define (github-get-all-users api-req #:media-type [media-type ""])
   (api-req "/users" #:media-type media-type))
 
-(provide github-build-webhook-config github-hook-repo)
 (define (github-build-webhook-config url
                                      #:content-type [content-type "form"]
                                      #:secret [secret ""]
@@ -410,7 +437,6 @@
              #:method "POST"
              #:data (jsexpr->string (make-hash data)))))
 
-(provide github-get-hooks)
 (define (github-get-hooks api-req repo-owner repo #:media-type [media-type ""])
   (api-req (string-append "/repos/" repo-owner "/" repo "/hooks")
            #:media-type media-type))
@@ -419,7 +445,6 @@
   (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id)
            #:media-type media-type))
 
-(provide github-test-push-hook)
 (define (github-test-push-hook api-req repo-owner repo hook-id)
   (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id "/tests")
            #:method "POST"))
@@ -427,7 +452,7 @@
 (define (github-ping-hook api-req repo-owner repo hook-id)
   (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id "/pings")
            #:method "POST"))
-(provide github-delete-hook)
+
 (define (github-delete-hook api-req repo-owner repo hook-id)
   (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id)
            #:method "DELETE"))
