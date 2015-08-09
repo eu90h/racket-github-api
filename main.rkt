@@ -181,82 +181,100 @@
   (api-req (string-append "/gists/" gist-id "/commits") #:media-type media-type))
 
 (define (github-star-gist api-req gist-id #:media-type [media-type ""])
-  (api-req (string-append "/gists/" gist-id "/star") "PUT" #:media-type media-type))
+  (api-req (string-append "/gists/" gist-id "/star") #:method "PUT" #:media-type media-type))
 
 (define (github-unstar-gist api-req gist-id #:media-type [media-type ""])
-  (api-req (string-append "/gists/" gist-id "/star") "DELETE" #:media-type media-type))
+  (api-req (string-append "/gists/" gist-id "/star")
+           #:method "DELETE" #:media-type media-type))
 
 (define (github-gist-starred? api-req gist-id #:media-type [media-type ""])
   (equal? "204" (second (string-split (api-req (string-append "/gists/" gist-id "/star") #:media-type media-type) " "))))
 
 (define (github-fork-gist api-req gist-id #:media-type [media-type ""])
-  (api-req (string-append "/gists/" gist-id "/forks") "POST" ""))
+  (api-req (string-append "/gists/" gist-id "/forks")
+           #:method "POST"
+           #:media-type media-type))
 
 (define (github-list-gist-forks api-req gist-id #:media-type [media-type ""])
-  (api-req (string-append "/gists/" gist-id "/forks")))
+  (api-req (string-append "/gists/" gist-id "/forks")
+           #:media-type media-type))
 
 (define (github-delete-gist api-req gist-id #:media-type [media-type ""])
-  (api-req (string-append "/gists/" gist-id) "DELETE"))
+  (api-req (string-append "/gists/" gist-id)
+           #:method "DELETE"
+           #:media-type media-type))
 
 (define (github-get-gist-revision api-req gist-id sha #:media-type [media-type ""])
-  (api-req (string-append "/gists/" gist-id "/" sha)))
+  (api-req (string-append "/gists/" gist-id "/" sha)
+           #:media-type media-type))
 
 (define (github-get-user-gists api-req username #:media-type [media-type ""])
-  (api-req (string-append "/users/" username "/gists")))
+  (api-req (string-append "/users/" username "/gists")
+           #:media-type media-type))
 
 (define (github-get-my-gists api-req #:media-type [media-type ""])
-  (api-req "/gists"))
+  (api-req "/gists" #:media-type media-type))
 
 (define (github-get-my-starred-gists api-req #:media-type [media-type ""])
-  (api-req "/gists/starred"))
+  (api-req "/gists/starred" #:media-type media-type))
 
 (define (github-get-all-public-gists api-req #:media-type [media-type ""])
-  (api-req "/gists/public"))
+  (api-req "/gists/public" #:media-type media-type))
 
 (define (github-list-public-events api-req #:media-type [media-type ""])
-  (api-req "/events"))
+  (api-req "/events" #:media-type media-type))
 
 (define (github-list-repo-events api-req repo-owner repo #:media-type [media-type ""])
-  (api-req (string-append "/repos/" repo-owner "/" repo "/events")))
+  (api-req (string-append "/repos/" repo-owner "/" repo "/events")
+           #:media-type media-type))
 
 (define (github-list-repo-issue-events api-req repo-owner repo #:media-type [media-type ""])
-  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/events")))
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/events")
+           #:media-type media-type))
 
 (define (github-list-public-org-events api-req org #:media-type [media-type ""])
-  (api-req (string-append "/orgs/" org "/events")))
+  (api-req (string-append "/orgs/" org "/events")
+           #:media-type media-type))
 
 (define (github-list-user-received-events api-req user #:media-type [media-type ""])
-  (api-req (string-append "/users/" user "/received_events")))
+  (api-req (string-append "/users/" user "/received_events")
+           #:media-type media-type))
 
 (define (github-list-user-received-public-events api-req user #:media-type [media-type ""])
-  (api-req (string-append "/users/" user "/received_events/public")))
+  (api-req (string-append "/users/" user "/received_events/public")
+           #:media-type media-type))
 
 (define (github-list-user-events api-req user #:media-type [media-type ""])
-  (api-req (string-append "/users/" user "/events")))
+  (api-req (string-append "/users/" user "/events")
+           #:media-type media-type))
 
 (define (github-list-user-public-events api-req user #:media-type [media-type ""])
-  (api-req (string-append "/users/" user "/events/public")))
+  (api-req (string-append "/users/" user "/events/public")
+           #:media-type media-type))
 
 (define (github-list-feeds api-req #:media-type [media-type ""])
-  (api-req "/feeds"))
+  (api-req "/feeds" #:media-type media-type))
 
 (define (github-list-notifications api-req #:media-type [media-type ""])
-  (api-req "/notifications"))
+  (api-req "/notifications" #:media-type media-type))
 
 (define (github-list-issues api-req #:media-type [media-type ""])
-  (api-req "/issues"))
+  (api-req "/issues" #:media-type media-type))
 
 (define (github-list-my-issues api-req #:media-type [media-type ""])
-  (api-req "/user/issues"))
+  (api-req "/user/issues" #:media-type media-type))
 
 (define (github-list-org-issues api-req org #:media-type [media-type ""])
-  (api-req (string-append "/orgs/" org "/issues")))
+  (api-req (string-append "/orgs/" org "/issues")
+           #:media-type media-type))
 
 (define (github-list-repo-issues api-req owner repo #:media-type [media-type ""])
-  (api-req (string-append "/repos/" owner "/" repo "/issues")))
+  (api-req (string-append "/repos/" owner "/" repo "/issues")
+           #:media-type media-type))
 
 (define (github-get-repo-issue api-req owner repo issue-number #:media-type [media-type ""])
-  (api-req (string-append "/repos/" owner "/" repo "/issues/" issue-number)))
+  (api-req (string-append "/repos/" owner "/" repo "/issues/" issue-number)
+           #:media-type media-type))
 
 (define (github-create-issue api-req owner repo title #:body [body ""] #:assignee [assignee ""] #:milestone [milestone ""] #:labels [labels null] #:media-type [media-type ""])
   (let* ([data (list (cons 'title title))]
@@ -264,7 +282,10 @@
          [data (if (equal? "" assignee) data (append data (list (cons 'assignee assignee))))]
          [data (if (equal? "" milestone) data (append data (list (cons 'milestone milestone))))]
          [data (if (null? labels) data (append data (list (cons 'labels labels))))])
-    (api-req (string-append "/repos/" owner "/" repo "/issues") "POST" (jsexpr->string (make-hash data)))))
+    (api-req (string-append "/repos/" owner "/" repo "/issues")
+             #:method "POST"
+             #:data (jsexpr->string (make-hash data))
+             #:media-type media-type)))
 
 (define (github-edit-issue api-req owner repo #:title [title ""] #:body [body ""] #:assignee [assignee ""] #:state [state ""] #:milestone [milestone ""] #:labels [labels null] #:media-type [media-type ""])
   (let* ([data null]
@@ -274,7 +295,10 @@
          [data (if (equal? "" state) data (append data (list (cons 'state state))))]
          [data (if (equal? "" milestone) data (append data (list (cons 'milestone milestone))))]
          [data (if (null? labels) data (append data (list (cons 'labels labels))))])
-    (api-req (string-append "/repos/" owner "/" repo "/issues") "POST" (jsexpr->string (make-hash data)))))
+    (api-req (string-append "/repos/" owner "/" repo "/issues")
+             #:method "POST"
+             #:data (jsexpr->string (make-hash data))
+             #:media-type media-type)))
 
 (define (github-list-repo-assignees api-req repo-owner repo #:media-type [media-type ""])
   (api-req (string-append "/repos/" repo-owner "/" repo "/assignees") #:media-type media-type))
@@ -380,9 +404,22 @@
                           #:active [active #t])
   (let* ([data (list (cons 'name name)
                      (cons 'config config)
-                     (cons 'events events))]
+                     (cons 'events events)
                      (cons 'active active))])
     (api-req (string-append "/repos/" repo-owner "/" repo "/hooks")
              #:method "POST"
              #:data (jsexpr->string (make-hash data)))))
-         
+
+(provide github-get-hooks)
+(define (github-get-hooks api-req repo-owner repo #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks")
+           #:media-type media-type))
+
+(define (github-get-hook api-req repo-owner repo hook-id #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id)
+           #:media-type media-type))
+
+(provide github-test-push-hook)
+(define (github-test-push-hook api-req repo-owner repo hook-id)
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id "/tests")
+           #:method "POST"))
