@@ -136,7 +136,8 @@
                            #:data data))))
 
     (if (or (= 201 (get-status-code (bytes->string/utf-8 status-line)))
-            (= 200 (get-status-code (bytes->string/utf-8 status-line))))
+            (= 200 (get-status-code (bytes->string/utf-8 status-line)))
+            (= 422 (get-status-code (bytes->string/utf-8 status-line))))
         (port->jsexpr in-port)
         (bytes->string/utf-8 status-line))))
 
@@ -364,4 +365,24 @@
 
 (define (github-get-all-users api-req #:media-type [media-type ""])
   (api-req "/users" #:media-type media-type))
-                            
+
+(provide github-build-webhook-config github-hook-repo)
+(define (github-build-webhook-config url
+                                     #:content-type [content-type "form"]
+                                     #:secret [secret ""]
+                                     #:insecure-ssl [insecure-ssl "0"])
+  (let* ([config-data (list (cons 'url url) (cons 'insecure_ssl insecure-ssl) (cons 'content_type content-type))]
+         [config-data (if (equal? secret "") config-data (append config-data (list (cons 'secret secret))))])
+    (make-hash config-data)))
+
+(define (github-hook-repo api-req repo-owner repo name config
+                          #:events [events (list "push")]
+                          #:active [active #t])
+  (let* ([data (list (cons 'name name)
+                     (cons 'config config)
+                     (cons 'events events))]
+                     (cons 'active active))])
+    (api-req (string-append "/repos/" repo-owner "/" repo "/hooks")
+             #:method "POST"
+             #:data (jsexpr->string (make-hash data)))))
+         
