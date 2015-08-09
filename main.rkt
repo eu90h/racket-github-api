@@ -71,7 +71,8 @@
                                  github-api-resp/c)]
           [github-test-push-hook (->* [github-api-req/c string? string? string?] github-api-resp/c)]
           [github-ping-hook (->* [github-api-req/c string? string? string?] github-api-resp/c)]
-          [github-delete-hook (->* [github-api-req/c string? string? string?] github-api-resp/c)]
+          [github-delete-hook (->* [github-api-req/c string? string? number?] github-api-resp/c)]
+          [github-get-hooks (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           ;[github- (->* github-api-req/c [#:media-type string?] github-api-resp/c)]
           ))
 
@@ -144,6 +145,10 @@
   (when (< (length parts) 2) (error (string-append "malformed status-line: " status-line)))
   (string->number (second parts)))
 
+(define (->string v)
+  (cond [(string? v) v]
+        [(number? v) (number->string v)]
+        [else v]))
 (define port->jsexpr (compose string->jsexpr port->string))
 
 (struct github-identity (type data))
@@ -454,5 +459,5 @@
            #:method "POST"))
 
 (define (github-delete-hook api-req repo-owner repo hook-id)
-  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id)
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" (->string hook-id))
            #:method "DELETE"))
