@@ -317,21 +317,21 @@
            #:media-type media-type))
 
 (define (github-get-commit api-req repo-owner repo sha #:media-type [media-type ""])
-  (api-string (string-append "/repos/" repo-owner "/" repo "/git/commits/" sha)
+  (api-req (string-append "/repos/" repo-owner "/" repo "/git/commits/" sha)
               #:media-type media-type))
 
 (define (github-create-commit api-req repo-owner repo message tree parents
                               #:media-type [media-type ""]
                               #:author [author ""]
-                              #:email [author-email ""]
+                              #:email [email ""]
                               #:data [data ""])
   (let* ([commit-data (list (cons 'message message)
                                 (cons 'tree tree)
                                 (cons 'parents parents))]
          [author-data (if (equal? author "") null (cons 'name author))]
-         [author-data (if (equal? author-email "") author-data (cons 'email email))]
+         [author-data (if (equal? email "") author-data (cons 'email email))]
          [author-data (if (equal? date "") author-data (cons 'date date))])
-  (api-string (string-append "/repos/" repo-owner "/" repo "/git/commits")
+  (api-req (string-append "/repos/" repo-owner "/" repo "/git/commits")
               (jsexpr->string (make-hash (if (null? author-data)
                                              commit-data
                                              (append commit-data
