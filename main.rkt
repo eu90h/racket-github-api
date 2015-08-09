@@ -8,9 +8,8 @@
          github-create-issue
          github-edit-issue
          (contract-out
-          [port->jsexpr (-> port? jsexpr?)]
           [struct github-identity ([type symbol?] [data (listof string?)])]
-          [github-api (-> github-identity? github-api-req/c)]
+          [github-api (->* [github-identity?] [#:endpoint string? #:user-agent string?] github-api-req/c)]
           [get-status-code (-> string? string?)]
           [github-create-gist (->* (github-api-req/c list?) [#:description string? #:public boolean? #:media-type string?] github-api-resp/c)]
           [github-get-gist (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
@@ -117,7 +116,7 @@
 
 (struct github-identity (type data))
 
-(define (github-api id [endpoint "api.github.com"] [user-agent "racket/github-@eu90h"])
+(define (github-api id #:endpoint [endpoint "api.github.com"] #:user-agent [user-agent "racket-github-api-@eu90h"])
   (lambda (req #:method [method "GET"] #:data [data ""] #:media-type [media-type ""])
     (define-values (status-line header-list in-port)
       (let* ([headers (list (make-auth-header (github-identity-type id)
@@ -243,6 +242,9 @@
 (define (github-list-issues api-req #:media-type [media-type ""])
   (api-req "/issues"))
 
+
+
+
 (define (github-list-my-issues api-req #:media-type [media-type ""])
   (api-req "/user/issues"))
 
@@ -255,20 +257,20 @@
 (define (github-get-repo-issue api-req owner repo issue-number #:media-type [media-type ""])
   (api-req (string-append "/repos/" owner "/" repo "/issues/" issue-number)))
 
-(define (github-create-issue api-req owner repo title #:body [body ""] #:assignee [assignee ""] #:milestone [milestone -1] #:labels [labels null] #:media-type [media-type ""])
+(define (github-create-issue api-req owner repo title #:body [body ""] #:assignee [assignee ""] #:milestone [milestone ""] #:labels [labels null] #:media-type [media-type ""])
   (let* ([data (list (cons 'title title))]
          [data (if (equal? "" body) data (append data (list (cons 'body body))))]
          [data (if (equal? "" assignee) data (append data (list (cons 'assignee assignee))))]
-         [data (if (equal? -1 milestone) data (append data (list (cons 'milestone milestone))))]
+         [data (if (equal? "" milestone) data (append data (list (cons 'milestone milestone))))]
          [data (if (null? labels) data (append data (list (cons 'labels labels))))])
     (api-req (string-append "/repos/" owner "/" repo "/issues") "POST" (jsexpr->string (make-hash data)))))
 
-(define (github-edit-issue api-req owner repo #:title [title ""] #:body [body ""] #:assignee [assignee ""] #:state [state ""] #:milestone [milestone -1] #:labels [labels null] #:media-type [media-type ""])
+(define (github-edit-issue api-req owner repo #:title [title ""] #:body [body ""] #:assignee [assignee ""] #:state [state ""] #:milestone [milestone ""] #:labels [labels null] #:media-type [media-type ""])
   (let* ([data null]
          [data (if (equal? title) data (list (cons 'title title)))]
          [data (if (equal? "" body) data (append data (list (cons 'body body))))]
          [data (if (equal? "" assignee) data (append data (list (cons 'assignee assignee))))]
          [data (if (equal? "" state) data (append data (list (cons 'state state))))]
-         [data (if (equal? -1 milestone) data (append data (list (cons 'milestone milestone))))]
+         [data (if (equal? "" milestone) data (append data (list (cons 'milestone milestone))))]
          [data (if (null? labels) data (append data (list (cons 'labels labels))))])
     (api-req (string-append "/repos/" owner "/" repo "/issues") "POST" (jsexpr->string (make-hash data)))))
