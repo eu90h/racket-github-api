@@ -2,7 +2,7 @@
 (require net/http-client openssl net/base64 json racket/list racket/string racket/port racket/contract)
 
 (define github-api-resp/c (or/c jsexpr? string?))
-(define github-api-req/c (->* (string?) [string? string?] github-api-resp/c))
+(define github-api-req/c (->* (string?) [#:method string? #:data string? #:media-type string?] github-api-resp/c))
 (provide github-api-req/c
          github-api-resp/c
          github-create-issue
@@ -12,35 +12,35 @@
           [struct github-identity ([type symbol?] [data (listof string?)])]
           [github-api (-> github-identity? github-api-req/c)]
           [get-status-code (-> string? string?)]
-          [github-create-gist (->* (github-api-req/c list?) [string? boolean?] github-api-resp/c)]
-          [github-get-gist (-> github-api-req/c string? github-api-resp/c)]
-          [github-edit-gist (->* [github-api-req/c string? (listof pair?)] [string?] github-api-resp/c)]
-          [github-delete-file-from-gist (-> github-api-req/c string? string? github-api-resp/c)]
-          [github-list-gist-commits (-> github-api-req/c string? github-api-resp/c)]
-          [github-star-gist (-> github-api-req/c string? github-api-resp/c)]
-          [github-unstar-gist (-> github-api-req/c string? github-api-resp/c)]
-          [github-gist-starred? (-> github-api-req/c string? boolean?)]               
-          [github-fork-gist (-> github-api-req/c string? github-api-resp/c)]
-          [github-list-gist-forks (-> github-api-req/c string? github-api-resp/c)]
-          [github-delete-gist (-> github-api-req/c string? github-api-resp/c)]
-          [github-get-gist-revision (-> github-api-req/c string? string? github-api-resp/c)]
-          [github-get-user-gists (-> github-api-req/c string? github-api-resp/c)]
-          [github-get-my-gists (-> github-api-req/c github-api-resp/c)]
-          [github-get-my-starred-gists (-> github-api-req/c github-api-resp/c)]
-          [github-get-all-public-gists (-> github-api-req/c github-api-resp/c)]
-          [github-list-public-events (-> github-api-req/c github-api-resp/c)]
-          [github-list-repo-events (-> github-api-req/c  string? string? github-api-resp/c)]
-          [github-list-repo-issue-events (-> github-api-req/c string? string? github-api-resp/c)]
-          [github-list-public-org-events (-> github-api-req/c string? github-api-resp/c)]
-          [github-list-user-received-events (-> github-api-req/c string? github-api-resp/c)]
-          [github-list-user-public-events (-> github-api-req/c string? github-api-resp/c)]
-          [github-list-feeds (-> github-api-req/c github-api-resp/c)]
-          [github-list-notifications (-> github-api-req/c github-api-resp/c)]
-          [github-list-issues (-> github-api-req/c github-api-resp/c)]
-          [github-list-my-issues (-> github-api-req/c github-api-resp/c)]
-          [github-list-org-issues (-> github-api-req/c string? github-api-resp/c)]
-          [github-list-repo-issues (-> github-api-req/c string? string? github-api-resp/c)]
-          [github-get-repo-issue (-> github-api-req/c string? string? string? github-api-resp/c)]
+          [github-create-gist (->* (github-api-req/c list?) [#:description string? #:public boolean? #:media-type string?] github-api-resp/c)]
+          [github-get-gist (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-edit-gist (->* [github-api-req/c string? (listof pair?)] [#:description string? #:media-type string?] github-api-resp/c)]
+          [github-delete-file-from-gist (->* [github-api-req/c string? string?] [#:media-type string?]github-api-resp/c)]
+          [github-list-gist-commits (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-star-gist (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-unstar-gist (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-gist-starred? (->* [github-api-req/c string?] [#:media-type string?] boolean?)]               
+          [github-fork-gist (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-gist-forks (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-delete-gist (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-gist-revision (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-user-gists (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-my-gists (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-get-my-starred-gists (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-get-all-public-gists (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-list-public-events (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-list-repo-events (->* [github-api-req/c  string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-repo-issue-events (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-public-org-events (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-user-received-events (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-user-public-events (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-feeds (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-list-notifications (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-list-issues (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-list-my-issues (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
+          [github-list-org-issues (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-repo-issues (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-repo-issue (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
          ; [github- (-> github-api-req/c github-api-resp/c)]
           ))
 
@@ -118,43 +118,43 @@
 (struct github-identity (type data))
 
 (define (github-api id [endpoint "api.github.com"] [user-agent "racket/github-@eu90h"])
-  (define data-methods (list "POST" "PATCH")) ; these http verbs require passing along data to the server
-  (lambda (req [method "GET"] [data ""])
+  (lambda (req #:method [method "GET"] #:data [data ""] #:media-type [media-type ""])
     (define-values (status-line header-list in-port)
       (let* ([headers (list (make-auth-header (github-identity-type id)
                                               (github-identity-data id))
-                           "Accept: application/vnd.github.v3+json"
+                           (string-append "Accept: " (if (equal? media-type "") "application/vnd.github.v3+json" media-type))
                            (string-append "User-Agent: " user-agent))])
-        (if (list? (member method data-methods)) (http-sendrecv endpoint req #:ssl? (ssl-make-client-context 'auto)
+        (if (equal? data "") (http-sendrecv endpoint req #:ssl? (ssl-make-client-context 'auto)
                                                   #:headers headers
-                                                  #:method method
-                                                  #:data data)
+                                                  #:method method)
+                                                  
             (http-sendrecv endpoint req #:ssl? (ssl-make-client-context 'auto)
                            #:headers (if (eq? "PUT" method) (append headers (list "Content-Length: 0")) headers)
-                           #:method method))))
+                           #:method method
+                           #:data data))))
 
     (if (or (= 201 (get-status-code (bytes->string/utf-8 status-line)))
             (= 200 (get-status-code (bytes->string/utf-8 status-line))))
         (port->jsexpr in-port)
         (bytes->string/utf-8 status-line))))
 
-(define (github-create-gist api-req files [d ""] [p #f])
+(define (github-create-gist api-req files #:description [description ""] #:public [public #f] #:media-type [media-type ""])
   (define (hash-files files)
     (define tmp (map (lambda (file-data) (cons 'content (cdr file-data))) files))
     (define (loop i new-files)
       (if (>= i (length tmp)) new-files
           (loop (add1 i) (append new-files (list (cons (if (string? (car (list-ref files i))) (string->symbol (car (list-ref files i))) (car (list-ref files i))) (make-hash (list (list-ref tmp i)))))))))
     (make-hash (loop 0 null)))
-  (define data (jsexpr->string (if (equal? "" d) (hasheq 'public p 'files (hash-files files))
-                                   (hasheq 'description d
-                                           'public p
+  (define data (jsexpr->string (if (equal? "" description) (hasheq 'public public 'files (hash-files files))
+                                   (hasheq 'description description
+                                           'public public
                                            'files (hash-files files)))))
-  (api-req "/gists" "POST" data))
+  (api-req "/gists" #:method "POST" #:data data #:media-type media-type))
 
-(define (github-get-gist api-req gist-id)
-  (api-req (string-append "/gists/" gist-id)))
+(define (github-get-gist api-req gist-id #:media-type [media-type ""])
+  (api-req (string-append "/gists/" gist-id) #:media-type media-type))
 
-(define (github-edit-gist api-req gist-id files [description ""])
+(define (github-edit-gist api-req gist-id files #:description [description ""] #:media-type [media-type ""])
   (define (hash-files files)
     (define updated-files (filter (lambda (file-data) (not (equal? (cdr file-data) null))) files))
     (define deleted-files (filter (lambda (file-data) (equal? (cdr file-data) 'delete)) files))
@@ -167,94 +167,95 @@
   (define data (jsexpr->string (if (equal? "" description) (hasheq 'files (hash-files files))
                                    (hasheq 'description description
                                            'files (hash-files files)))))
-  (api-req (string-append "/gists/" gist-id) "PATCH"  data))
+  (api-req (string-append "/gists/" gist-id) #:method "PATCH" #:data data #:media-type media-type))
 
-(define (github-delete-file-from-gist api-req gist-id file)
+(define (github-delete-file-from-gist api-req gist-id file #:media-type [media-type ""])
   (github-edit-gist api-req gist-id
-                 (list (cons file 'delete))))
+                 (list (cons file 'delete))
+                 #:media-type media-type))
 
-(define (github-list-gist-commits api-req gist-id)
-  (api-req (string-append "/gists/" gist-id "/commits")))
+(define (github-list-gist-commits api-req gist-id #:media-type [media-type ""])
+  (api-req (string-append "/gists/" gist-id "/commits") #:media-type media-type))
 
-(define (github-star-gist api-req gist-id)
-  (api-req (string-append "/gists/" gist-id "/star") "PUT"))
+(define (github-star-gist api-req gist-id #:media-type [media-type ""])
+  (api-req (string-append "/gists/" gist-id "/star") "PUT" #:media-type media-type))
 
-(define (github-unstar-gist api-req gist-id)
-  (api-req (string-append "/gists/" gist-id "/star") "DELETE"))
+(define (github-unstar-gist api-req gist-id #:media-type [media-type ""])
+  (api-req (string-append "/gists/" gist-id "/star") "DELETE" #:media-type media-type))
 
-(define (github-gist-starred? api-req gist-id)
-  (equal? "204" (second (string-split (api-req (string-append "/gists/" gist-id "/star")) " "))))
+(define (github-gist-starred? api-req gist-id #:media-type [media-type ""])
+  (equal? "204" (second (string-split (api-req (string-append "/gists/" gist-id "/star") #:media-type media-type) " "))))
 
-(define (github-fork-gist api-req gist-id)
+(define (github-fork-gist api-req gist-id #:media-type [media-type ""])
   (api-req (string-append "/gists/" gist-id "/forks") "POST" ""))
 
-(define (github-list-gist-forks api-req gist-id)
+(define (github-list-gist-forks api-req gist-id #:media-type [media-type ""])
   (api-req (string-append "/gists/" gist-id "/forks")))
 
-(define (github-delete-gist api-req gist-id)
+(define (github-delete-gist api-req gist-id #:media-type [media-type ""])
   (api-req (string-append "/gists/" gist-id) "DELETE"))
 
-(define (github-get-gist-revision api-req gist-id sha)
+(define (github-get-gist-revision api-req gist-id sha #:media-type [media-type ""])
   (api-req (string-append "/gists/" gist-id "/" sha)))
 
-(define (github-get-user-gists api-req username)
+(define (github-get-user-gists api-req username #:media-type [media-type ""])
   (api-req (string-append "/users/" username "/gists")))
 
-(define (github-get-my-gists api-req)
+(define (github-get-my-gists api-req #:media-type [media-type ""])
   (api-req "/gists"))
 
-(define (github-get-my-starred-gists api-req)
+(define (github-get-my-starred-gists api-req #:media-type [media-type ""])
   (api-req "/gists/starred"))
 
-(define (github-get-all-public-gists api-req)
+(define (github-get-all-public-gists api-req #:media-type [media-type ""])
   (api-req "/gists/public"))
 
-(define (github-list-public-events api-req)
+(define (github-list-public-events api-req #:media-type [media-type ""])
   (api-req "/events"))
 
-(define (github-list-repo-events api-req repo-owner repo)
+(define (github-list-repo-events api-req repo-owner repo #:media-type [media-type ""])
   (api-req (string-append "/repos/" repo-owner "/" repo "/events")))
 
-(define (github-list-repo-issue-events api-req repo-owner repo)
+(define (github-list-repo-issue-events api-req repo-owner repo #:media-type [media-type ""])
   (api-req (string-append "/repos/" repo-owner "/" repo "/issues/events")))
 
-(define (github-list-public-org-events api-req org)
+(define (github-list-public-org-events api-req org #:media-type [media-type ""])
   (api-req (string-append "/orgs/" org "/events")))
 
-(define (github-list-user-received-events api-req user)
+(define (github-list-user-received-events api-req user #:media-type [media-type ""])
   (api-req (string-append "/users/" user "/received_events")))
 
-(define (github-list-user-received-public-events api-req user)
+(define (github-list-user-received-public-events api-req user #:media-type [media-type ""])
   (api-req (string-append "/users/" user "/received_events/public")))
 
-(define (github-list-user-events api-req user)
+(define (github-list-user-events api-req user #:media-type [media-type ""])
   (api-req (string-append "/users/" user "/events")))
 
-(define (github-list-user-public-events api-req user)
+(define (github-list-user-public-events api-req user #:media-type [media-type ""])
   (api-req (string-append "/users/" user "/events/public")))
 
-(define (github-list-feeds api-req)
+(define (github-list-feeds api-req #:media-type [media-type ""])
   (api-req "/feeds"))
 
-(define (github-list-notifications api-req)
+(define (github-list-notifications api-req #:media-type [media-type ""])
   (api-req "/notifications"))
 
-(define (github-list-issues api-req)
+(define (github-list-issues api-req #:media-type [media-type ""])
   (api-req "/issues"))
 
-(define (github-list-my-issues api-req)
+(define (github-list-my-issues api-req #:media-type [media-type ""])
   (api-req "/user/issues"))
 
-(define (github-list-org-issues api-req org)
+(define (github-list-org-issues api-req org #:media-type [media-type ""])
   (api-req (string-append "/orgs/" org "/issues")))
 
-(define (github-list-repo-issues api-req owner repo)
+(define (github-list-repo-issues api-req owner repo #:media-type [media-type ""])
   (api-req (string-append "/repos/" owner "/" repo "/issues")))
 
-(define (github-get-repo-issue api-req owner repo issue-number)
+(define (github-get-repo-issue api-req owner repo issue-number #:media-type [media-type ""])
   (api-req (string-append "/repos/" owner "/" repo "/issues/" issue-number)))
 
-(define (github-create-issue api-req owner repo title #:body [body ""] #:assignee [assignee ""] #:milestone [milestone -1] #:labels [labels null])
+(define (github-create-issue api-req owner repo title #:body [body ""] #:assignee [assignee ""] #:milestone [milestone -1] #:labels [labels null] #:media-type [media-type ""])
   (let* ([data (list (cons 'title title))]
          [data (if (equal? "" body) data (append data (list (cons 'body body))))]
          [data (if (equal? "" assignee) data (append data (list (cons 'assignee assignee))))]
@@ -262,7 +263,7 @@
          [data (if (null? labels) data (append data (list (cons 'labels labels))))])
     (api-req (string-append "/repos/" owner "/" repo "/issues") "POST" (jsexpr->string (make-hash data)))))
 
-(define (github-edit-issue api-req owner repo #:title [title ""] #:body [body ""] #:assignee [assignee ""] #:state [state ""] #:milestone [milestone -1] #:labels [labels null])
+(define (github-edit-issue api-req owner repo #:title [title ""] #:body [body ""] #:assignee [assignee ""] #:state [state ""] #:milestone [milestone -1] #:labels [labels null] #:media-type [media-type ""])
   (let* ([data null]
          [data (if (equal? title) data (list (cons 'title title)))]
          [data (if (equal? "" body) data (append data (list (cons 'body body))))]
