@@ -6,19 +6,19 @@
 @author{eu90h}
 
 @defmodule[github-api]
-github-api is a wrapper for easily making requests to the github api.
+github-api is a wrapper for easily making requests to the GitHub api.
 
-Before you begin making requests to the github api, you must create an identity.
+Before you begin making requests to the GitHub api, you must create an identity.
 @defstruct[github-identity ([type symbol?] [data list?])]{
- This struct holds your github identity.
+ This struct holds your GitHub identity.
 
  @racket[type] must be one of the following symbols: @racket['password 'personal-access-token 'oauth]
  
  @racket['password] authentication
- simply uses your github username and password.
+ simply uses your GitHub username and password.
 
  @racket['personal-access-token] authentication allows you
- to send your github username and a personal access token (created on your github settings page.)
+ to send your GitHub username and a personal access token (created on your GitHub settings page.)
 
  @racket['oauth] uses an OAuth token for authorization.
  
@@ -33,25 +33,52 @@ Before you begin making requests to the github api, you must create an identity.
 
  For @racket['oauth], the data will simply be @racket[(list oauth-token)], where @racket[oauth-token]
  is a string.
+}
+@section{A Note on Identity Security}
+According to the GitHub documentation, personal access tokens are equivalent to your password. Never
+give it out (and don't accidently commit your identity!)
 
- 
-}
-@defform[(api-response/c (or/c jsexpr? string?))]
-@defform[(github-api-req/c (-> string? api-response/c))]{
-This is a contract for the procedures returned by the function @racket[github-api].
-These functions are called with an api request and return a json object or a HTTP status code string.
-Typically, one would not use this procedure directly but rather pass it along to another function.
-}
-@defproc*[([(github-api [identity github-identity?])
-         (github-api-get/c)]
-           [(github-api [identity github-identity?] [endpoint string?])
-         (github-api-get/c)])]{
+Read more about your options for authentication @hyperlink["https://developer.github.com/v3/#authentication"
+                                                           "here"]
+
+@defproc[(github-api [id github-identity?]
+                     [#:endpoint endpoint string? "api.github.com"]
+                     [#:user-agent user-agent string? "racket-github-api-@eu90h"])
+         github-api-req/c]{
  Once you've created an identity, apply it to this procedure to receive a
- function for making api requests.}
+ function for making api requests.
+ 
+The @racket[#:endpoint] keyword sets the root endpoint for making api requests. If you have a GitHub enterprise
+account, you may wish to change the endpoint. See @hyperlink["https://developer.github.com/v3/#root-endpoint"
+                                                             "this"]
+for more information on root-endpoints.
+
+If you change the user-agent string, be aware that GitHub has certain rules explicated @hyperlink["https://developer.github.com/v3/#user-agent-required" "here"]}
+
+@defform[(api-response/c (or/c jsexpr? string?))]
+This is a contract for the result of executing a GitHub api request. You are guarenteed either a
+JSON expression or a string.
+
+@defform[(github-api-req/c (-> string?
+                               [#:method string?
+                                #:data string?
+                                #:media-type string?]
+                               api-response/c))]{
+This is a contract for the procedures returned by the function @racket[github-api].
+These functions are called with an api request and return a JSON object or a HTTP status code string.
+Typically, one would not use this procedure directly but rather pass it along to another function.
+
+The @racket[#:method] keyword specifies what HTTP verb to use (I.e. "GET", "POST", "PATCH", etc.)
+
+The @racket[#:data] keyword specifies any information to send along with the request. This is almost always
+ a JSON string.
+
+Finally, @racket[#:media-type] specifies the format in which you wish to receive data. For more information
+see @hyperlink["https://developer.github.com/v3/media/" "the GitHub api documentation"].
+}
 
 @section{Example}
 @racketblock[
- (require github-api)
  (define personal-token "fs52knf535djbfk2je43b2436")
  (define username "alice")
  (define id (github-identity 'personal-token (list username personal-token)))
