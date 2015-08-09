@@ -5,6 +5,8 @@
 (define github-api-req/c (->* (string?) [string? string?] github-api-resp/c))
 (provide github-api-req/c
          github-api-resp/c
+         github-create-issue
+         github-edit-issue
          (contract-out
           [port->jsexpr (-> port? jsexpr?)]
           [struct github-identity ([type symbol?] [data (listof string?)])]
@@ -34,8 +36,13 @@
           [github-list-user-public-events (-> github-api-req/c string? github-api-resp/c)]
           [github-list-feeds (-> github-api-req/c github-api-resp/c)]
           [github-list-notifications (-> github-api-req/c github-api-resp/c)]
+          [github-list-issues (-> github-api-req/c github-api-resp/c)]
+          [github-list-my-issues (-> github-api-req/c github-api-resp/c)]
+          [github-list-org-issues (-> github-api-req/c string? github-api-resp/c)]
+          [github-list-repo-issues (-> github-api-req/c string? string? github-api-resp/c)]
+          [github-get-repo-issue (-> github-api-req/c string? string? string? github-api-resp/c)]
+         ; [github- (-> github-api-req/c github-api-resp/c)]
           ))
-
 
 (module+ test (require rackunit))
 
@@ -231,3 +238,36 @@
 
 (define (github-list-notifications api-req)
   (api-req "/notifications"))
+
+(define (github-list-issues api-req)
+  (api-req "/issues"))
+
+(define (github-list-my-issues api-req)
+  (api-req "/user/issues"))
+
+(define (github-list-org-issues api-req org)
+  (api-req (string-append "/orgs/" org "/issues")))
+
+(define (github-list-repo-issues api-req owner repo)
+  (api-req (string-append "/repos/" owner "/" repo "/issues")))
+
+(define (github-get-repo-issue api-req owner repo issue-number)
+  (api-req (string-append "/repos/" owner "/" repo "/issues/" issue-number)))
+
+(define (github-create-issue api-req owner repo title #:body [body ""] #:assignee [assignee ""] #:milestone [milestone -1] #:labels [labels null])
+  (let* ([data (list (cons 'title title))]
+         [data (if (equal? "" body) data (append data (list (cons 'body body))))]
+         [data (if (equal? "" assignee) data (append data (list (cons 'assignee assignee))))]
+         [data (if (equal? -1 milestone) data (append data (list (cons 'milestone milestone))))]
+         [data (if (null? labels) data (append data (list (cons 'labels labels))))])
+    (api-req (string-append "/repos/" owner "/" repo "/issues") "POST" (jsexpr->string (make-hash data)))))
+
+(define (github-edit-issue api-req owner repo #:title [title ""] #:body [body ""] #:assignee [assignee ""] #:state [state ""] #:milestone [milestone -1] #:labels [labels null])
+  (let* ([data null]
+         [data (if (equal? title) data (list (cons 'title title)))]
+         [data (if (equal? "" body) data (append data (list (cons 'body body))))]
+         [data (if (equal? "" assignee) data (append data (list (cons 'assignee assignee))))]
+         [data (if (equal? "" state) data (append data (list (cons 'state state))))]
+         [data (if (equal? -1 milestone) data (append data (list (cons 'milestone milestone))))]
+         [data (if (null? labels) data (append data (list (cons 'labels labels))))])
+    (api-req (string-append "/repos/" owner "/" repo "/issues") "POST" (jsexpr->string (make-hash data)))))
