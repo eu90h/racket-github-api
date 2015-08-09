@@ -336,3 +336,32 @@
                                              commit-data
                                              (append commit-data
                                                      (list (cons 'author author-data)))))))))
+
+
+(define (github-list-orgs api-req #:media-type [media-type ""])
+  (api-req "/user/orgs" #:media-type media-type))
+
+(define (github-list-all-orgs api-req #:media-type [media-type ""])
+  (api-req "/organizations" #:media-type media-type))
+
+(define (github-list-user-orgs api-req user #:media-type [media-type ""])
+  (api-req (string-append "/users/" user "/orgs") #:media-type media-type))
+
+(define (github-get-org api-req org #:media-type [media-type ""])
+  (api-req (string-append "/orgs/" org) #:media-type media-type))
+
+(define (github-list-org-members api-req org #:media-type [media-type ""])
+  (api-req (string-append "/orgs/" org "/members") #:media-type media-type))
+
+(define (github-list-pull-requests api-req repo-owner repo #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/pulls") #:media-type media-type))
+
+(define (github-get-user api-req user #:media-type [media-type ""])
+  (api-req (string-append "/users/" user) #:media-type media-type))
+
+(define (github-get-authenticated-user api-req)
+  (api-req "/user"))
+
+(define (github-get-all-users api-req #:media-type [media-type ""])
+  (api-req "/users" #:media-type media-type))
+                            
