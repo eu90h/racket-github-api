@@ -40,7 +40,10 @@
           [github-list-org-issues (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
           [github-list-repo-issues (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-get-repo-issue (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
-         ; [github- (-> github-api-req/c github-api-resp/c)]
+          
+          [github-list-repo-assignees (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
+
+          ;[github- (->* github-api-req/c [#:media-type string?] github-api-resp/c)]
           ))
 
 (module+ test (require rackunit))
@@ -242,9 +245,6 @@
 (define (github-list-issues api-req #:media-type [media-type ""])
   (api-req "/issues"))
 
-
-
-
 (define (github-list-my-issues api-req #:media-type [media-type ""])
   (api-req "/user/issues"))
 
@@ -274,3 +274,33 @@
          [data (if (equal? "" milestone) data (append data (list (cons 'milestone milestone))))]
          [data (if (null? labels) data (append data (list (cons 'labels labels))))])
     (api-req (string-append "/repos/" owner "/" repo "/issues") "POST" (jsexpr->string (make-hash data)))))
+
+(define (github-list-repo-assignees api-req repo-owner repo #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/assignees") #:media-type media-type))
+
+(define (github-check-assignee api-req repo-owner repo assignee #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/" assignee) #:media-type media-type))
+
+(define (github-list-issue-comments api-req repo-owner repo issue-number #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/" issue-number "/comments") #:media-type media-type))
+
+(define (github-list-repo-comments api-req repo-owner repo #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/comments") #:media-type media-type))
+
+(define (github-get-single-comment api-req repo-owner repo comment-id #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/comments/" comment-id) #:media-type media-type))
+
+(define (github-create-comment api-req repo-owner repo issue-number comment-body #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/" issue-number "/comments")
+           #:method "POST"
+           #:data (jsexpr->string (make-hash (list (cons 'body comment-body))))))
+
+(define (github-edit-comment api-req repo-owner repo comment-id comment-body #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/comments/" comment-id)
+           #:method "PATCH"
+           #:data (jsexpr->string (make-hash (list (cons 'body comment-body))))))
+
+(define (github-delete-comment api-req repo-owner repo comment-id #:media-type [media-type ""])
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/comments/" comment-id)
+           #:method "DELETE"))
+           
