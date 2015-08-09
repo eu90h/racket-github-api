@@ -43,7 +43,7 @@ Before you begin making requests to the GitHub api, you must create an identity.
  Once you've created an identity, apply it to this procedure to receive a
  function for making api requests.
  
-The @racket[#:endpoint] keyword sets the root endpoint for making api requests. If you have a GitHub enterprise
+The optional @racket[#:endpoint] keyword sets the root endpoint for making api requests. If you have a GitHub enterprise
 account, you may wish to change the endpoint. See @hyperlink["https://developer.github.com/v3/#root-endpoint"
                                                              "this"]
 for more information on root-endpoints.
@@ -68,7 +68,11 @@ The @racket[#:method] keyword specifies what HTTP verb to use (I.e. "GET", "POST
 The @racket[#:data] keyword specifies any information to send along with the request. This is almost always
  a JSON string.
 
-Finally, @racket[#:media-type] specifies the format in which you wish to receive data. For more information
+Finally, @racket[#:media-type] specifies the format in which you wish to receive data.
+ Practically every @racket[github-*] procedure has an optional keyword @racket[#:media-type]
+ that allows you to specify a media-type for a request.
+ 
+ For more information on media types
 see @hyperlink["https://developer.github.com/v3/media/" "the GitHub api documentation"].
 }
 
@@ -91,53 +95,133 @@ Read more about your options for authentication @hyperlink["https://developer.gi
  (github-req "/users/plt/repos")
  ]
 Here we make a request to get the repositories created by the user plt.
+@section{Working with JSON Data}
+When making requests to the GitHub API, it is common to receive data encoded in the
+JSON format. This quick section introduces Racket's JSON handling facilities.
 
-@section{Gists}
-@defproc*[([(github-create-gist [api-req github-api-req/c] [files (listof pair?)]) api-response/c]
-           [(github-create-gist [api-req github-api-req/c] [files (listof pair?)] [description string?]) api-resonse/c]
-           [(github-create-gist [api-req github-api-req/c] [files (listof pair?)] [description string?] [public boolean?]) api-resonse/c])]{
+Racket provides a library for working with JSON data, aptly called @racket[json].
+
+This is used by the Racket github-api library to encode data before returning it.
+
+Essentially, JSON expressions are represented as hashes. The JSON object
+@racketblock[
+             { "name": "billy bob" }
+             ]
+becomes the hash
+@racketblock[
+            (define jsexpr (make-hash (list (cons 'name "billy bob"))))
+             ]
+To get the value associated with the key 'name, use @racket[hash-ref] like so:
+@racketblock[
+             (hash-ref jsexpr 'name)
+             ]
+which should return @racket["billy bob"]
+
+To learn more about working with hashes see the @hyperlink["http://docs.racket-lang.org/guide/hash-tables.html"
+                                                           "Racket guide"]
+and the @hyperlink["http://docs.racket-lang.org/reference/hashtables.html"
+                   "Racket reference"] on hash-tables.
+
+@section{Gist API}
+The Gist API will return up to 1 megabyte of content from a requested gist.
+
+To see if a file was truncated,
+check whether or not the key @racket[truncated] is @racket["true"].
+
+To get the full contents of the file,
+make a request to the url referenced by the key @racket[raw_url].
+
+For more information see the @hyperlink["https://developer.github.com/v3/gists/#truncation"
+                                                                                                          "GitHub documentation"]
+
+@defproc[(github-create-gist [api-req github-api-req/c]
+                           [files (listof pair?)]
+                           [#:description description string? ""]
+                           [#:public public boolean? #f]
+                           [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-resonse/c]{
 Creates a gist containing files given as a list of pairs @racket[(filename contents)].
  If the gist was created successfully, a @racket[jsexpr?] is returned.
 
-The optional parameter @racket[description] provides a description of the gist. By default it is empty.
-The optional parameter @racket[public] determines whether or not the gist is public. By default this is @racket[#f].                                                                                                                                    
-           }
+The optional keyword @racket[description] provides a description of the gist. By default it is empty.
 
-
-@defproc[(github-get-gist [api-req github-api-req/c] [gist-id string?]) api-response/c]
-Gets the gist, returning a @racket[jsexpr?] on success.
-
-@defproc*[([(github-edit-gist [api-req github-api-req/c] [gist-id string?] [files (listof pair?)]) api-response/c]
-           [(github-edit-gist [api-req github-api-req/c] [gist-id string?] [files (listof pair?)] [description string]) api-response/c])]
+The optional keyword @racket[public] determines whether or not the gist is public. By default this is @racket[#f].
+}
+@defproc[(github-edit-gist [api-req github-api-req/c]
+                           [gist-id string?]
+                           [files (listof pair?)]
+                           [#:description description string? ""]
+                           [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-resonse/c]{
 Updates a gist. See @racket[github-create-gist] for more explanation of the arguments.
 
 To delete a file from a gist, for example @racket["file1.txt"], add an entry to the @racket[files] list like so:   @racket[(cons "file1.txt" 'delete)].
+}
+@defproc[(github-get-gist [api-req github-api-req/c]
+                          [gist-id string?]
+                          [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+Gets the gist, returning a @racket[jsexpr?] on success.
 
-@defproc[(github-list-gist-commits [api-req github-api-req/c] [gist-id string?]) api-response/c]
+@defproc[(github-list-gist-commits [api-req github-api-req/c]
+                                   [gist-id string?]
+                                   [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-star-gist [api-req github-api-req/c] [gist-id string?]) api-response/c]
+@defproc[(github-star-gist [api-req github-api-req/c]
+                           [gist-id string?]
+                           [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-unstar-gist [api-req github-api-req/c] [gist-id string?]) api-response/c]
+@defproc[(github-unstar-gist [api-req github-api-req/c]
+                             [gist-id string?]
+                             [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-gist-starred? [api-req github-api-req/c] [gist-id string?]) boolean?]
+@defproc[(github-gist-starred? [api-req github-api-req/c]
+                               [gist-id string?]
+                               [#:media-type string? "application/vnd.github.v3+json"])
+         boolean?]
 
-@defproc[(github-fork-gist [api-req github-api-req/c] [gist-id string?]) api-response/c]
+@defproc[(github-fork-gist [api-req github-api-req/c]
+                           [gist-id string?]
+                           [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-list-gist-forks [api-req github-api-req/c] [gist-id string?]) api-response/c]
+@defproc[(github-list-gist-forks [api-req github-api-req/c]
+                                 [gist-id string?]
+                                 [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-delete-gist [api-req github-api-req/c] [gist-id string?]) api-response/c]
+@defproc[(github-delete-gist [api-req github-api-req/c]
+                             [gist-id string?]
+                             [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-get-gist-revision [api-req github-api-req/c] [gist-id string?] [sha string?]) api-response/c]
+@defproc[(github-get-gist-revision [api-req github-api-req/c]
+                                   [gist-id string?]
+                                   [sha string?]
+                                   [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-get-user-gists [api-req github-api-req/c] [user string?]) api-response/c]
+@defproc[(github-get-user-gists [api-req github-api-req/c]
+                                [user string?]
+                                [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-get-my-gists [api-req github-api-req/c]) api-response/c]
+@defproc[(github-get-my-gists [api-req github-api-req/c]
+                              [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-get-my-starred-gists [api-req github-api-req/c]) api-response/c]
+@defproc[(github-get-my-starred-gists [api-req github-api-req/c]
+                                      [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-get-all-public-gists [api-req github-api-req/c]) api-response/c]
+@defproc[(github-get-all-public-gists [api-req github-api-req/c]
+                                      [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@section{Examples}
+@section{Gist Examples}
 
 @racketblock[(define new-gist-id
                (let ([response (github-create-gist github-req
@@ -160,22 +244,55 @@ To delete a file from a gist, for example @racket["file1.txt"], add an entry to 
 
 @section{Events}
 
-@defproc[(github-list-repo-events [api-req github-api-req/c] [repo-owner string?] [repo string?]) api-response/c]
+@defproc[(github-list-repo-events [api-req github-api-req/c]
+                                  [repo-owner string?]
+                                  [repo string?]
+                                  [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-list-repo-issue-events [api-req github-api-req/c] [repo-owner string?] [repo string?]) api-response/c]
+@defproc[(github-list-repo-issue-events [api-req github-api-req/c]
+                                        [repo-owner string?]
+                                        [repo string?]
+                                        [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-list-public-org-events [api-req github-api-req/c] [org string?]) api-response/c]
+@defproc[(github-list-public-org-events [api-req github-api-req/c]
+                                        [org string?]
+                                        [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-list-user-received-events [api-req github-api-req/c] [user string?]) api-response/c]
+@defproc[(github-list-user-received-events [api-req github-api-req/c]
+                                           [user string?]
+                                           [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-list-user-received-public-events [api-req github-api-req/c] [user string?]) api-response/c]
+@defproc[(github-list-user-received-public-events [api-req github-api-req/c]
+                                                  [user string?]
+                                                  [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-list-user-events [api-req github-api-req/c] [user string?]) api-response/c]
+@defproc[(github-list-user-events [api-req github-api-req/c]
+                                  [user string?]
+                                  [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-list-user-public-events [api-req github-api-req/c] [user string?]) api-response/c]
+@defproc[(github-list-user-public-events [api-req github-api-req/c]
+                                         [user string?]
+                                         [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
 @section{Feeds}
 
-@defproc[(github-list-feeds [api-req github-api-req/c]) api-response/c]
+@defproc[(github-list-feeds [api-req github-api-req/c]
+                            [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
 
-@defproc[(github-list-notifications [api-req github-api-req/c]) api-response/c]
+@defproc[(github-list-notifications [api-req github-api-req/c]
+                                    [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+
+@defproc[(github-list-issues [api-req github-api-req/c]
+                             [#:media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+                             
