@@ -69,9 +69,9 @@
           [github-hook-repo (->* [github-api-req/c string? string? string? jsexpr?]
                                  [#:events list? #:active boolean?]
                                  github-api-resp/c)]
-          [github-test-push-hook (->* [github-api-req/c string? string? string?] github-api-resp/c)]
-          [github-ping-hook (->* [github-api-req/c string? string? string?] github-api-resp/c)]
-          [github-delete-hook (->* [github-api-req/c string? string? number?] github-api-resp/c)]
+          [github-test-push-hook (->* [github-api-req/c string? string? (or/c number? string)] github-api-resp/c)]
+          [github-ping-hook (->* [github-api-req/c string? string? (or/c number? string)] github-api-resp/c)]
+          [github-delete-hook (->* [github-api-req/c string? string? (or/c number? string)] github-api-resp/c)]
           [github-get-hooks (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           ;[github- (->* github-api-req/c [#:media-type string?] github-api-resp/c)]
           ))
@@ -447,15 +447,15 @@
            #:media-type media-type))
 
 (define (github-get-hook api-req repo-owner repo hook-id #:media-type [media-type ""])
-  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id)
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" (->string hook-id))
            #:media-type media-type))
 
 (define (github-test-push-hook api-req repo-owner repo hook-id)
-  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id "/tests")
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" (->string hook-id) "/tests")
            #:method "POST"))
 
 (define (github-ping-hook api-req repo-owner repo hook-id)
-  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" hook-id "/pings")
+  (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" (->string hook-id) "/pings")
            #:method "POST"))
 
 (define (github-delete-hook api-req repo-owner repo hook-id)
