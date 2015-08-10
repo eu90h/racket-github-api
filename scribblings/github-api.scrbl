@@ -353,14 +353,14 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
 @defproc[(github-get-issue [api-req github-api-req/c]
                                 [repo-owner string?]
                                 [repo-name string?]
-                                [issue-number string?]
+                                [issue-number (or/c number? string?)]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-list-issue-comments [api-req github-api-req/c]
                                      [repo-owner string?]
                                      [repo-name string?]
-                                     [issue-number string?]
+                                     [issue-number (or/c number? string?)]
                                      [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
