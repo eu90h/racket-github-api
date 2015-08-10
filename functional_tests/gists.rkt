@@ -3,7 +3,7 @@
 
 (define gh (github-api personal-token-id))
 
-(define requests-remaining (github-get-rate-limit gh))
+(define requests-remaining (get-requests-remaining gh))
 (define (sub1-requests-remaining!)
   (begin (set! requests-remaining (sub1 requests-remaining))
          requests-remaining))
