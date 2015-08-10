@@ -43,10 +43,10 @@
           [github-get-repo-issue (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
           [github-list-repo-assignees (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-check-assignee (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
-          [github-list-issue-comments (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-issue-comments (->* [github-api-req/c string? string? (or/c number? string?)] [#:media-type string?] github-api-resp/c)]
           [github-list-repo-comments (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-get-single-comment (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
-          [github-create-comment (->* [github-api-req/c string? string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-create-comment (->* [github-api-req/c string? string? string? (or/c number? string?)] [#:media-type string?] github-api-resp/c)]
           [github-edit-comment (->* [github-api-req/c string? string? string? string?] [#:media-type string?] github-api-resp/c)]
           [github-delete-comment (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
           [github-get-blob (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
@@ -363,16 +363,16 @@
   (api-req (string-append "/repos/" repo-owner "/" repo "/" assignee) #:media-type media-type))
 
 (define (github-list-issue-comments api-req repo-owner repo issue-number #:media-type [media-type ""])
-  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/" issue-number "/comments") #:media-type media-type))
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/" (->string issue-number) "/comments") #:media-type media-type))
 
 (define (github-list-repo-comments api-req repo-owner repo #:media-type [media-type ""])
   (api-req (string-append "/repos/" repo-owner "/" repo "/issues/comments") #:media-type media-type))
 
 (define (github-get-single-comment api-req repo-owner repo comment-id #:media-type [media-type ""])
-  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/comments/" comment-id) #:media-type media-type))
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/comments/" (->string comment-id)) #:media-type media-type))
 
 (define (github-create-comment api-req repo-owner repo issue-number comment-body #:media-type [media-type ""])
-  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/" issue-number "/comments")
+  (api-req (string-append "/repos/" repo-owner "/" repo "/issues/" (->string issue-number) "/comments")
            #:method "POST"
            #:data (jsexpr->string (make-hash (list (cons 'body comment-body))))))
 
