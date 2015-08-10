@@ -10,7 +10,7 @@
          (contract-out
           [struct github-identity ([type symbol?] [data (listof string?)])]
           [github-api (->* [github-identity?] [#:endpoint string? #:user-agent string?] github-api-req/c)]
-          [get-status-code (-> string? string?)]
+          [get-status-code (-> string? number?)]
           [github-create-gist (->* (github-api-req/c list?) [#:description string? #:public boolean? #:media-type string?] github-api-resp/c)]
           [github-get-gist (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
           [github-edit-gist (->* [github-api-req/c string? (listof pair?)] [#:description string? #:media-type string?] github-api-resp/c)]
@@ -74,6 +74,8 @@
           [github-delete-hook (->* [github-api-req/c string? string? (or/c number? string?)] github-api-resp/c)]
           [github-get-hooks (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-get-hook (->* [github-api-req/c string? string? (or/c number? string?)] [#:media-type string?] github-api-resp/c)]
+          [github-get-rate-limit (-> github-api-req/c jsexpr?)]
+       
           ;[github- (->* github-api-req/c [#:media-type string?] github-api-resp/c)]
           ))
 
@@ -143,8 +145,8 @@
 (define (get-status-code status-line)
   (unless (string? status-line) (error "status-line must be a string"))
   (define parts (string-split status-line " "))
-  (when (< (length parts) 2) (error (string-append "malformed status-line: " status-line)))
-  (string->number (second parts)))
+  (if (< (length parts) 2) -1
+      (string->number (second parts))))
 
 (define (->string v)
   (cond [(string? v) v]
@@ -465,3 +467,6 @@
 (define (github-delete-hook api-req repo-owner repo hook-id)
   (api-req (string-append "/repos/" repo-owner "/" repo "/hooks/" (->string hook-id))
            #:method "DELETE"))
+
+(define (github-get-rate-limit api-req)
+  (api-req "/rate_limit"))
