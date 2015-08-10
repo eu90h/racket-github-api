@@ -370,11 +370,11 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
-@defproc[(github-get-single-comment [api-req github-api-req/c]
-                                    [repo-owner string?]
-                                    [repo-name string?]
-                                    [comment-id (or/c number? string?)]
-                                    [#:media-type media-type string? "application/vnd.github.v3+json"])
+@defproc[(github-get-comment [api-req github-api-req/c]
+                             [repo-owner string?]
+                             [repo-name string?]
+                             [comment-id (or/c number? string?)]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-create-comment [api-req github-api-req/c]
