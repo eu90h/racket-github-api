@@ -248,13 +248,13 @@ Gets the gist, returning a @racket[jsexpr?] on success.
 For more information on the Events API, see @hyperlink["https://developer.github.com/v3/activity/events/"
                                                        "the GitHub documentation"]
 
-@defproc[(github-list-repo-events [api-req github-api-req/c]
+@defproc[(github-list-events [api-req github-api-req/c]
                                   [repo-owner string?]
                                   [repo string?]
                                   [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
-@defproc[(github-list-repo-issue-events [api-req github-api-req/c]
+@defproc[(github-list-issue-events [api-req github-api-req/c]
                                         [repo-owner string?]
                                         [repo string?]
                                         [#:media-type media-type string? "application/vnd.github.v3+json"])
@@ -305,7 +305,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                                                                     "this section"]
 
 
-@defproc[(github-list-issues [api-req github-api-req/c]
+@defproc[(github-list-all-issues [api-req github-api-req/c]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
@@ -318,7 +318,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
-@defproc[(github-list-repo-issues [api-req github-api-req/c]
+@defproc[(github-list-issues [api-req github-api-req/c]
                                   [repo-owner string?]
                                   [repo-name string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
@@ -346,7 +346,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                               [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
-@defproc[(github-get-repo-issue [api-req github-api-req/c]
+@defproc[(github-get-issue [api-req github-api-req/c]
                                 [repo-owner string?]
                                 [repo-name string?]
                                 [issue-number string?]
@@ -360,7 +360,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                                      [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
-@defproc[(github-list-repo-comments [api-req github-api-req/c]
+@defproc[(github-list-comments [api-req github-api-req/c]
                                     [repo-owner string?]
                                     [repo-name string?]
                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
@@ -409,7 +409,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
 
 @section{Repositories}
 
-@defproc[(github-list-repo-assignees [api-req github-api-req/c]
+@defproc[(github-list-assignees [api-req github-api-req/c]
                                      [repo-owner string?]
                                      [repo-name string?]
                                      [#:media-type media-type string? "application/vnd.github.v3+json"])
