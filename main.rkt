@@ -69,10 +69,11 @@
           [github-hook-repo (->* [github-api-req/c string? string? string? jsexpr?]
                                  [#:events list? #:active boolean?]
                                  github-api-resp/c)]
-          [github-test-push-hook (->* [github-api-req/c string? string? (or/c number? string)] github-api-resp/c)]
-          [github-ping-hook (->* [github-api-req/c string? string? (or/c number? string)] github-api-resp/c)]
-          [github-delete-hook (->* [github-api-req/c string? string? (or/c number? string)] github-api-resp/c)]
+          [github-test-push-hook (->* [github-api-req/c string? string? (or/c number? string?)] github-api-resp/c)]
+          [github-ping-hook (->* [github-api-req/c string? string? (or/c number? string?)] github-api-resp/c)]
+          [github-delete-hook (->* [github-api-req/c string? string? (or/c number? string?)] github-api-resp/c)]
           [github-get-hooks (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-hook (->* [github-api-req/c string? string? (or/c number? string?)] [#:media-type string?] github-api-resp/c)]
           ;[github- (->* github-api-req/c [#:media-type string?] github-api-resp/c)]
           ))
 
