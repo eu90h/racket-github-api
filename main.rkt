@@ -31,6 +31,7 @@
           [github-list-repo-events (->* [github-api-req/c  string? string?] [#:media-type string?] github-api-resp/c)]
           [github-list-repo-issue-events (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-list-public-org-events (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
+          [github-list-user-events (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
           [github-list-user-received-events (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
           [github-list-user-public-events (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
           [github-list-feeds (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
