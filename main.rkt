@@ -75,7 +75,18 @@
           [github-get-hooks (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-get-hook (->* [github-api-req/c string? string? (or/c number? string?)] [#:media-type string?] github-api-resp/c)]
           [github-get-rate-limit (-> github-api-req/c jsexpr?)]
-       
+        ;  [github-create-repo (->* [github-api-req/c string?]
+         ;                          [#:description string?
+          ;                         #:homepage string?
+           ;                        #:private boolean?
+            ;                       #:has-issues boolean?
+             ;                      #:has-wiki boolean?
+              ;                     #:has-downloads boolean?
+               ;                    #:team-id number?
+                ;                   #:auto-init boolean?
+                 ;                  #:gitignore-template string?
+                  ;                 #:license-template string?]
+                   ;                github-api-resp/c)]
           ;[github- (->* github-api-req/c [#:media-type string?] github-api-resp/c)]
           ))
 
@@ -228,7 +239,11 @@
            #:method "DELETE" #:media-type media-type))
 
 (define (github-gist-starred? api-req gist-id #:media-type [media-type ""])
-  (equal? "204" (second (string-split (api-req (string-append "/gists/" gist-id "/star") #:media-type media-type) " "))))
+  (= 204
+          (get-status-code
+                   (api-req (string-append "/gists/" gist-id "/star")
+                            #:media-type media-type))))
+                   
 
 (define (github-fork-gist api-req gist-id #:media-type [media-type ""])
   (api-req (string-append "/gists/" gist-id "/forks")
