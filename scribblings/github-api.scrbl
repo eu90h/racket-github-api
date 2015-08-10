@@ -423,6 +423,8 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
          api-response/c]
 
 @section{Git Data}
+Click @hyperlink["https://developer.github.com/v3/git/" "here"] for more information on the Git Data API.
+
 @defproc[(github-get-blob [api-req github-api-req/c]
                           [repo-owner string?]
                           [repo-name string?]
@@ -455,6 +457,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
          api-response/c]
 
 @section{Organizations}
+For more on Organizations, go @racket["https://developer.github.com/v3/orgs/" "here"]
 
 @defproc[(github-list-orgs [api-req github-api-req/c]
                            [#:media-type media-type string? "application/vnd.github.v3+json"])
