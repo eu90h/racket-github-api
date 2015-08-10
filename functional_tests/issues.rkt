@@ -31,3 +31,6 @@
 
 (check-equal? (github-list-issue-comments gh user repo issue-number) null)
 (sub1-requests-remaining!)
+
+(check-equal? (hash-ref (github-edit-issue gh user repo issue-number #:state "closed") 'state) "closed")
+(sub1-requests-remaining!)
