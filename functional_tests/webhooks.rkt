@@ -27,6 +27,18 @@
   (check-eq? (length resp) 1)
   (sub1-requests-remaining!))
 
+(check-equal? (hash-ref (github-get-hook gh user repo hook-id) 'url)
+              (hash-ref hook-data 'url))
+(sub1-requests-remaining!)
+
+(check-status-code (github-test-push-hook gh user repo hook-id)
+                   204)
+(sub1-requests-remaining!)
+
+(check-status-code (github-ping-hook gh user repo hook-id)
+                   204)
+(sub1-requests-remaining!)
+
 (check-status-code (github-delete-hook gh user repo hook-id) 204)
 (sub1-requests-remaining!)
 
