@@ -29,3 +29,6 @@
 
 (check-status-code (github-delete-hook gh user repo hook-id) 204)
 (sub1-requests-remaining!)
+
+(check-status-code  (github-delete-hook gh user repo hook-id) 404)
+(sub1-requests-remaining!)
