@@ -8,8 +8,12 @@
 @defmodule[github-api]
 github-api is a wrapper for easily making requests to the GitHub api.
 
-Before you begin making requests to the GitHub api, you must create an identity.
+While this document contains usage examples, the functional tests found in the functional_tests directory of the @hyperlink["https://github.com/eu90h/racket-github-api"
+                                                                                                                            "github repository"]
+provide a good source of usage examples and patterns.
+
 @section{Authentication & Initialization}
+Before you begin making requests to the GitHub api, you must create an identity.
 
 @defstruct[github-identity ([type symbol?] [data list?])]{
  This struct holds your GitHub identity.
@@ -369,14 +373,14 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
 @defproc[(github-get-single-comment [api-req github-api-req/c]
                                     [repo-owner string?]
                                     [repo-name string?]
-                                    [comment-id string?]
+                                    [comment-id (or/c number? string?)]
                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
 @defproc[(github-create-comment [api-req github-api-req/c]
                                 [repo-owner string?]
                                 [repo-name string?]
-                                [issue-number string?]
+                                [issue-number (or/c number? string?)]
                                 [comment-body string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
@@ -384,7 +388,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
 @defproc[(github-edit-comment [api-req github-api-req/c]
                               [repo-owner string?]
                               [repo-name string?]
-                              [comment-id string?]
+                              [comment-id (or/c number? string?)]
                               [comment-body string?]
                               [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
@@ -392,7 +396,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
 @defproc[(github-delete-comment [api-req github-api-req/c]
                                 [repo-owner string?]
                                 [repo-name string?]
-                                [comment-id string?]
+                                [comment-id (or/c number? string?)]
                                 [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
