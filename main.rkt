@@ -5,8 +5,6 @@
 (define github-api-req/c (->* (string?) [#:method string? #:data string? #:media-type string?] github-api-resp/c))
 (provide github-api-req/c
          github-api-resp/c
-         github-create-issue
-         github-edit-issue
          (contract-out
           [struct github-identity ([type symbol?] [data (listof string?)])]
           [github-api (->* [github-identity?] [#:endpoint string? #:user-agent string?] github-api-req/c)]
@@ -76,6 +74,20 @@
           [github-get-hooks (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-get-hook (->* [github-api-req/c string? string? (or/c number? string?)] [#:media-type string?] github-api-resp/c)]
           [github-get-rate-limit (-> github-api-req/c jsexpr?)]
+          [github-create-issue (->* [github-api-req/c string? string? string?]
+                                    [#:body string?
+                                            #:assignee string?
+                                            #:milestone number? 
+                                            #:labels (listof string?)]
+                                    jsexpr?)]
+          [github-edit-issue (->* [github-api-req/c string? string? (or/c string? number?)]
+                                      [#:title string? 
+                                               #:body string?
+                                               #:assignee string? 
+                                               #:state string? 
+                                               #:milestone number? 
+                                               #:labels (listof string?)]
+                                      jsexpr?)]
         ;  [github-create-repo (->* [github-api-req/c string?]
          ;                          [#:description string?
           ;                         #:homepage string?
@@ -88,7 +100,6 @@
                  ;                  #:gitignore-template string?
                   ;                 #:license-template string?]
                    ;                github-api-resp/c)]
-          ;[github- (->* github-api-req/c [#:media-type string?] github-api-resp/c)]
           ))
 
 (module+ test (require rackunit))
@@ -343,16 +354,16 @@
              #:data (jsexpr->string (make-hash data))
              #:media-type media-type)))
 
-(define (github-edit-issue api-req owner repo #:title [title ""] #:body [body ""] #:assignee [assignee ""] #:state [state ""] #:milestone [milestone ""] #:labels [labels null] #:media-type [media-type ""])
+(define (github-edit-issue api-req owner repo issue-number #:title [title ""] #:body [body ""] #:assignee [assignee ""] #:state [state ""] #:milestone [milestone ""] #:labels [labels null] #:media-type [media-type ""])
   (let* ([data null]
-         [data (if (equal? title) data (list (cons 'title title)))]
+         [data (if (equal? "" title) data (list (cons 'title title)))]
          [data (if (equal? "" body) data (append data (list (cons 'body body))))]
          [data (if (equal? "" assignee) data (append data (list (cons 'assignee assignee))))]
          [data (if (equal? "" state) data (append data (list (cons 'state state))))]
          [data (if (equal? "" milestone) data (append data (list (cons 'milestone milestone))))]
          [data (if (null? labels) data (append data (list (cons 'labels labels))))])
-    (api-req (string-append "/repos/" owner "/" repo "/issues")
-             #:method "POST"
+    (api-req (string-append "/repos/" owner "/" repo "/issues/" (->string issue-number))
+             #:method "PATCH"
              #:data (jsexpr->string (make-hash data))
              #:media-type media-type)))
 
