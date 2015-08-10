@@ -301,6 +301,10 @@ For more information about feeds, go @hyperlink["https://developer.github.com/v3
 For more information about the Issues API, click @hyperlink["https://developer.github.com/v3/issues/"
                                                             "here"]
 
+Furthermore, the Issues API uses custom media types. See @hyperlink["https://developer.github.com/v3/issues/#custom-media-types"
+                                                                    "this section"]
+
+
 @defproc[(github-list-issues [api-req github-api-req/c]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
@@ -349,6 +353,49 @@ For more information about the Issues API, click @hyperlink["https://developer.g
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
 
+@defproc[(github-list-issue-comments [api-req github-api-req/c]
+                                     [repo-owner string?]
+                                     [repo-name string?]
+                                     [issue-number string?]
+                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-list-repo-comments [api-req github-api-req/c]
+                                    [repo-owner string?]
+                                    [repo-name string?]
+                                    [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-get-single-comment [api-req github-api-req/c]
+                                    [repo-owner string?]
+                                    [repo-name string?]
+                                    [comment-id string?]
+                                    [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-create-comment [api-req github-api-req/c]
+                                [repo-owner string?]
+                                [repo-name string?]
+                                [issue-number string?]
+                                [comment-body string?]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-edit-comment [api-req github-api-req/c]
+                              [repo-owner string?]
+                              [repo-name string?]
+                              [comment-id string?]
+                              [comment-body string?]
+                              [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-delete-comment [api-req github-api-req/c]
+                                [repo-owner string?]
+                                [repo-name string?]
+                                [comment-id string?]
+                                [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
 @section{Issue Examples}
 @racketblock[
  (github-create-issue github-req
@@ -359,3 +406,142 @@ For more information about the Issues API, click @hyperlink["https://developer.g
                       #:assignee "eu90h"
                       #:labels (list "woo!" "test"))
               ]
+
+@section{Repositories}
+
+@defproc[(github-list-repo-assignees [api-req github-api-req/c]
+                                     [repo-owner string?]
+                                     [repo-name string?]
+                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-check-assignee [api-req github-api-req/c]
+                                [repo-owner string?]
+                                [repo-name string?]
+                                [user string?]
+                                [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@section{Git Data}
+@defproc[(github-get-blob [api-req github-api-req/c]
+                          [repo-owner string?]
+                          [repo-name string?]
+                          [sha string?]
+                          [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-create-blob [api-req github-api-req/c]
+                             [repo-owner string?]
+                             [repo-name string?]
+                             [content string?]
+                             [encoding string? "utf-8"]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-get-commit [api-req github-api-req/c]
+                             [repo-owner string?]
+                             [repo-name string?]
+                             [sha string?]
+                             [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-create-commit [api-req github-api-req/c]
+                               [repo-owner string?]
+                               [repo-name string?]
+                               [message string?]
+                               [tree string?]
+                               [parents (listof string?)]
+                               [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@section{Organizations}
+
+@defproc[(github-list-orgs [api-req github-api-req/c]
+                           [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-list-all-orgs [api-req github-api-req/c]
+                               [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-list-user-orgs [api-req github-api-req/c]
+                                [user string?]
+                                [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-get-org [api-req github-api-req/c]
+                         [org string?]
+                         [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-list-org-members [api-req github-api-req/c]
+                         [org string?]
+                         [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-list-pull-requests [api-req github-api-req/c]
+                                    [repo-owner string?]
+                                    [repo string?]
+                                    [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@section{Users}
+@defproc[(github-get-user [api-req github-api-req/c]
+                          [user string?]
+                          [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-get-authenticated-user [api-req github-api-req/c]
+                                        [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-get-all-users [api-req github-api-req/c]
+                               [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+@section{Webhooks}
+@defproc[(github-build-webhook-config [api-req github-api-req/c]
+                                      [url string?]
+                                      [#:content-type content-type string? "form"]
+                                      [#:secret secret string? ""]
+                                      [#:insecure-ssl insecure-ssl string? "0"])
+         api-response/c]
+
+@defproc[(github-hook-repo [api-req github-api-req/c]
+                           [repo-owner string?]
+                           [repo string?]
+                           [type string?]
+                           [config jsexpr?]
+                           [#:events events (listof string?) '("push")]
+                           [#:active active boolean? #t])
+         api-response/c]
+
+@defproc[(github-get-hooks [api-req github-api-req/c]
+                           [repo-owner string?]
+                           [repo string?]
+                           [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-get-hook [api-req github-api-req/c]
+                          [repo-owner string?]
+                          [repo string?]
+                          [hook-id (or/c string? number?)]
+                          [#:media-type media-type string? "application/vnd.github.v3+json"])
+         api-response/c]
+
+@defproc[(github-test-push-hook [api-req github-api-req/c]
+                                [repo-owner string?]
+                                [repo string?]
+                                [hook-id (or/c string? number?)])
+         api-response/c]
+
+@defproc[(github-ping-hook [api-req github-api-req/c]
+                           [repo-owner string?]
+                           [repo string?]
+                           [hook-id (or/c string? number?)])
+         api-response/c]
+
+@defproc[(github-delete-hook [api-req github-api-req/c]
+                             [repo-owner string?]
+                             [repo string?]
+                             [hook-id (or/c string? number?)])
+         api-response/c]
