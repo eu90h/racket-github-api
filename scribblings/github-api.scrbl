@@ -545,3 +545,17 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                              [repo string?]
                              [hook-id (or/c string? number?)])
          api-response/c]
+@section{Webhooks Example}
+@racketblock[
+ (define config (github-build-webhook-config "http://example.com"
+                                             #:insecure-ssl "0"
+                                             #:content-type "json"))
+ (define hook-data (github-hook-repo github-req username my-repo "agilebench" config))
+ (define hook-id (hash-ref hook-data 'id))
+ (github-get-hooks github-req username my-repo)
+ (define del-hook (thunk (github-delete-hook github-req username my-repo hook-id)))
+ ...
+ (define delete-response (del-hook))
+ (if (and (string? delete-response) (= 204 (get-status-code delete-response)))
+     (displayln "successfully removed webhook")
+     (displayln (string-append "trouble removing webhook: " delete-response)))]
