@@ -573,4 +573,4 @@ name of the webhook.
  (define delete-response (del-hook))
  (if (and (string? delete-response) (= 204 (get-status-code delete-response)))
      (displayln "successfully removed webhook")
-     (displayln (string-append "trouble removing webhook: " delete-response)))]
+     (displayln "trouble removing webhook"))]
