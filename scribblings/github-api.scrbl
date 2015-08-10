@@ -498,7 +498,16 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
 @defproc[(github-get-all-users [api-req github-api-req/c]
                                [#:media-type media-type string? "application/vnd.github.v3+json"])
          api-response/c]
-@section{Webhooks}
+@section{Webhooks & Service Hooks}
+Webhooks are a sort-of user defined callback in the form of a listening webserver that github sends a
+message to whenever a certain type of event occurs.
+
+A service hook is a webhook whose type is anything except @racket["web"]
+
+To read more, see the @hyperlink["https://developer.github.com/webhooks/"
+                                 "GitHub documentation"]
+
+
 @defproc[(github-build-webhook-config [api-req github-api-req/c]
                                       [url string?]
                                       [#:content-type content-type string? "form"]
@@ -514,7 +523,13 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                            [#:events events (listof string?) '("push")]
                            [#:active active boolean? #t])
          api-response/c]
+The @racket[type] parameter must be the string @racket["web"] or a service name defined in @hyperlink["https://api.github.com/hooks"
+                                                                                                      "this"] rather inconvenient JSON file.
 
+Passing any other string results in an error response from the GitHub API.
+
+Note: The @racket[type] parameter is referred to in the GitHub documentation (misleadingly, I think) as the
+name of the webhook.
 @defproc[(github-get-hooks [api-req github-api-req/c]
                            [repo-owner string?]
                            [repo string?]
@@ -550,7 +565,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
  (define config (github-build-webhook-config "http://example.com"
                                              #:insecure-ssl "0"
                                              #:content-type "json"))
- (define hook-data (github-hook-repo github-req username my-repo "agilebench" config))
+ (define hook-data (github-hook-repo github-req username my-repo "web" config))
  (define hook-id (hash-ref hook-data 'id))
  (github-get-hooks github-req username my-repo)
  (define del-hook (thunk (github-delete-hook github-req username my-repo hook-id)))
