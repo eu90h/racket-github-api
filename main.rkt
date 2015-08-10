@@ -38,7 +38,7 @@
           [github-list-my-issues (->* [github-api-req/c] [#:media-type string?] github-api-resp/c)]
           [github-list-org-issues (->* [github-api-req/c string?] [#:media-type string?] github-api-resp/c)]
           [github-list-issues (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
-          [github-get-issue (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
+          [github-get-issue (->* [github-api-req/c string? string? (or/c number? string?)] [#:media-type string?] github-api-resp/c)]
           [github-list-assignees (->* [github-api-req/c string? string?] [#:media-type string?] github-api-resp/c)]
           [github-check-assignee (->* [github-api-req/c string? string? string?] [#:media-type string?] github-api-resp/c)]
           [github-list-issue-comments (->* [github-api-req/c string? string? (or/c number? string?)] [#:media-type string?] github-api-resp/c)]
@@ -340,7 +340,7 @@
            #:media-type media-type))
 
 (define (github-get-issue api-req owner repo issue-number #:media-type [media-type ""])
-  (api-req (string-append "/repos/" owner "/" repo "/issues/" issue-number)
+  (api-req (string-append "/repos/" owner "/" repo "/issues/" (->string issue-number))
            #:media-type media-type))
 
 (define (github-create-issue api-req owner repo title #:body [body ""] #:assignee [assignee ""] #:milestone [milestone ""] #:labels [labels null] #:media-type [media-type ""])
