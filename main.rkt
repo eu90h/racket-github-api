@@ -149,6 +149,9 @@
 (define (->string v)
   (cond [(string? v) v]
         [(number? v) (number->string v)]
+        [(symbol? v) (symbol->string v)]
+        [(boolean? v) (if v "true" "false")]
+        [(jsexpr? v) (jsexpr->string v)]
         [else v]))
 (define port->jsexpr (compose string->jsexpr port->string))
 
