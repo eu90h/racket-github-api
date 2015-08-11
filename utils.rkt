@@ -25,11 +25,9 @@
 
 (define (make-basic-auth-header username password)
   (unless (string? username)
-    (error "username must be a string"))
-  
+    (raise-argument-error 'make-basic-auth-header string? username))
   (unless (string? password)
-    (error "password must be a string"))
-  
+    (raise-argument-error 'make-basic-auth-header string? password))
   (string-append "Authorization: Basic "
                  (base64-encode-string (string-append username ":" password))))
 
@@ -39,13 +37,11 @@
   (define (random-element list) 
     (when (list? list) 
       (if (null? list) null (list-ref list (random (length list))))))
-  
   (define (random-alphanumeric-char)
     (random-element
      (list #\a #\b #\c #\d #\e #\f #\g #\h #\i #\j #\k #\l #\m
            #\n #\o #\p #\q #\r #\s #\t #\u #\v #\w #\x #\y #\z
            #\1 #\2 #\3 #\4 #\5 #\6 #\7 #\8 #\9 #\0)))
-  
   (define (random-token [max 40]) (let loop ([i 0] [s ""])
                          (if (= i max) s (loop (add1 i) (string-append s (string (random-alphanumeric-char)))))))
   (define a-token (random-token))
@@ -55,7 +51,7 @@
                 (string-append a-username ":" a-token)))
 
 (define (make-oauth2-header token)
-  (unless (string? token) (error "oauth token must be a string"))
+  (unless (string? token) (raise-argument-error 'make-oauth2-header string? token))
   (string-append "Authorization: token " token))
 
 (module+ test
@@ -79,9 +75,9 @@
                 a-token))
 
 (define (get-status-code status-line)
-  (unless (string? status-line) (error "status-line must be a string"))
+  (unless (string? status-line) (raise-argument-error 'get-status-code string? status-line))
   (define parts (string-split status-line " "))
-  (if (< (length parts) 2) -1
+  (if (< (length parts) 2) 0
       (string->number (second parts))))
 
 (define (->string v)
@@ -91,4 +87,5 @@
         [(boolean? v) (if v "true" "false")]
         [(jsexpr? v) (jsexpr->string v)]
         [else ""]))
+
 (define port->jsexpr (compose string->jsexpr port->string))
