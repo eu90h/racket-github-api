@@ -4,8 +4,12 @@
          "utils.rkt" "gists.rkt" "users.rkt" "orgs.rkt" "pull.rkt" "git.rkt" "webhooks.rkt"
          "issues.rkt" "events.rkt")
 
+(provide (except-out (all-from-out "utils.rkt")
+                     ->string
+                     get-status-code
+                     port->jsexpr))
 (provide
- (all-from-out "utils.rkt" "gists.rkt" "users.rkt" "orgs.rkt"
+ (all-from-out "gists.rkt" "users.rkt" "orgs.rkt"
                "pull.rkt" "git.rkt" "webhooks.rkt" "issues.rkt" "events.rkt"))
 (provide 
  (contract-out
