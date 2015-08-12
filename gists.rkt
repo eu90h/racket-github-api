@@ -67,9 +67,9 @@
 
 (define (github-gist-starred? api-req gist-id #:media-type [media-type ""])
   (= 204
-          (get-status-code
-                   (api-req (string-append "/gists/" gist-id "/star")
-                            #:media-type media-type))))
+     (github-response-code 
+      (api-req (string-append "/gists/" gist-id "/star")
+               #:media-type media-type))))
                    
 
 (define (github-fork-gist api-req gist-id #:media-type [media-type ""])

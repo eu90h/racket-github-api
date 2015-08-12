@@ -10,7 +10,7 @@
 (provide 
  (contract-out
   [github-api (->* [github-identity?] [#:endpoint string? #:user-agent string?] github-api-req/c)]
-  [github-get-rate-limit (-> github-api-req/c jsexpr?)]))
+  [github-get-rate-limit (-> github-api-req/c github-response?)]))
 
 (define (github-api id #:endpoint [endpoint "api.github.com"] #:user-agent [user-agent "racket-github-api-@eu90h"])
   (lambda (req #:method [method "GET"] #:data [data ""] #:media-type [media-type ""])
@@ -27,12 +27,13 @@
                            #:headers (if (eq? "PUT" method) (append headers (list "Content-Length: 0")) headers)
                            #:method method
                            #:data data))))
-
-    (if (or (= 201 (get-status-code (bytes->string/utf-8 status-line)))
-            (= 200 (get-status-code (bytes->string/utf-8 status-line)))
-            (= 422 (get-status-code (bytes->string/utf-8 status-line))))
-        (port->jsexpr in-port)
-        (bytes->string/utf-8 status-line))))
+    (github-response (get-status-code (bytes->string/utf-8 status-line))
+                     (port->jsexpr in-port))))
+ ;   (if (or (= 201 (get-status-code (bytes->string/utf-8 status-line)))
+  ;          (= 200 (get-status-code (bytes->string/utf-8 status-line)))
+   ;         (= 422 (get-status-code (bytes->string/utf-8 status-line))))
+    ;    (port->jsexpr in-port)
+     ;   (bytes->string/utf-8 status-line))))
 
 (define (github-get-rate-limit api-req)
   (api-req "/rate_limit"))
