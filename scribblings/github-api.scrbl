@@ -63,7 +63,8 @@ holds the HTTP status code and @racket[data] holds the content of the response.
                                 #:media-type string?]
                                github-response?))]{
 This is a contract for the procedures returned by the function @racket[github-api].
-These functions are called with an api request and return a JSON object or a HTTP status code string.
+These functions are called with an api request and return a @racket[github-response] struct.
+
 Typically, one would not use this procedure directly but rather pass it along to another function.
 
 The @racket[#:method] keyword specifies what HTTP verb to use (I.e. "GET", "POST", "PATCH", etc.)
