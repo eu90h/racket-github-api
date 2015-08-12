@@ -575,11 +575,9 @@ name of the webhook.
  (define hook (github-hook-repo github-req username my-repo "web" config))
  (define hook-data (github-response-data hook))
  
- (define hook-id (hash-ref hook-data 'id))
- (github-get-hooks github-req username my-repo)
- (define del-hook (thunk (github-delete-hook github-req username my-repo hook-id)))
+ (define del-hook (thunk (github-delete-hook github-req username my-repo (hash-ref hook-data 'id))))
  ...
  (define delete-response (del-hook))
- (if (and (string? delete-response) (= 204 (get-status-code delete-response)))
+ (if (= 204 (github-response-code delete-response))
      (displayln "successfully removed webhook")
      (displayln "trouble removing webhook"))]
