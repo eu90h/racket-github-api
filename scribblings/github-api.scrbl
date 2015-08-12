@@ -54,15 +54,14 @@ for more information on root-endpoints.
 
 If you change the user-agent string, be aware that GitHub has certain rules explicated @hyperlink["https://developer.github.com/v3/#user-agent-required" "here"]}
 
-@defform[(api-response/c (or/c jsexpr? string?))]
-This is a contract for the result of executing a GitHub api request. You are guarenteed either a
-JSON expression or a string.
-
+@defstruct[github-response ([code number?] [data jsexpr?])]
+This is the data structure returned as the result of making a GitHub API request. The @racket[code] field
+holds the HTTP status code and @racket[data] holds the content of the response.
 @defform[(github-api-req/c (-> string?
                                [#:method string?
                                 #:data string?
                                 #:media-type string?]
-                               api-response/c))]{
+                               github-response?))]{
 This is a contract for the procedures returned by the function @racket[github-api].
 These functions are called with an api request and return a JSON object or a HTTP status code string.
 Typically, one would not use this procedure directly but rather pass it along to another function.
@@ -95,8 +94,8 @@ Read more about your options for authentication @hyperlink["https://developer.gi
  (define username "alice")
  (define id (github-identity 'personal-token (list username personal-token)))
  
- (define github-req (github-api id))
- (github-req "/users/plt/repos")
+ (define github (github-api id))
+ (github "/users/plt/repos")
  ]
 Here we make a request to get the repositories created by the user plt.
 @section{Working with JSON Data}
@@ -166,23 +165,23 @@ To delete a file from a gist, for example @racket["file1.txt"], add an entry to 
 @defproc[(github-get-gist [api-req github-api-req/c]
                           [gist-id string?]
                           [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 Gets the gist, returning a @racket[jsexpr?] on success.
 
 @defproc[(github-list-gist-commits [api-req github-api-req/c]
                                    [gist-id string?]
                                    [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-star-gist [api-req github-api-req/c]
                            [gist-id string?]
                            [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-unstar-gist [api-req github-api-req/c]
                              [gist-id string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-gist-starred? [api-req github-api-req/c]
                                [gist-id string?]
@@ -192,40 +191,40 @@ Gets the gist, returning a @racket[jsexpr?] on success.
 @defproc[(github-fork-gist [api-req github-api-req/c]
                            [gist-id string?]
                            [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-gist-forks [api-req github-api-req/c]
                                  [gist-id string?]
                                  [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-delete-gist [api-req github-api-req/c]
                              [gist-id string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-gist-revision [api-req github-api-req/c]
                                    [gist-id string?]
                                    [sha string?]
                                    [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-user-gists [api-req github-api-req/c]
                                 [user string?]
                                 [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-my-gists [api-req github-api-req/c]
                               [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-my-starred-gists [api-req github-api-req/c]
                                       [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-all-public-gists [api-req github-api-req/c]
                                       [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @section{Gist Examples}
 
@@ -233,7 +232,7 @@ Gets the gist, returning a @racket[jsexpr?] on success.
                (let ([response (github-create-gist github-req
                                                    (list (cons "file1.txt" "blah blah blah")
                                                          (cons "file2.txt" "yadda yadda yadda")))])
-                 (hash-ref response 'id)))
+                 (hash-ref (github-response-data response) 'id)))
              
 (github-edit-gist github-req new-gist-id
                  (list (cons "file2.txt" 'delete)))
@@ -256,38 +255,38 @@ For more information on the Events API, see @hyperlink["https://developer.github
                                   [repo-owner string?]
                                   [repo string?]
                                   [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-issue-events [api-req github-api-req/c]
                                         [repo-owner string?]
                                         [repo string?]
                                         [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-public-org-events [api-req github-api-req/c]
                                         [org string?]
                                         [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-user-received-events [api-req github-api-req/c]
                                            [user string?]
                                            [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-user-received-public-events [api-req github-api-req/c]
                                                   [user string?]
                                                   [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-user-events [api-req github-api-req/c]
                                   [user string?]
                                   [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-user-public-events [api-req github-api-req/c]
                                          [user string?]
                                          [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @section{Feeds}
 For more information about feeds, go @hyperlink["https://developer.github.com/v3/activity/feeds/"
@@ -295,11 +294,11 @@ For more information about feeds, go @hyperlink["https://developer.github.com/v3
 
 @defproc[(github-list-feeds [api-req github-api-req/c]
                             [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-notifications [api-req github-api-req/c]
                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @section{Issues}
 For more information about the Issues API, click @hyperlink["https://developer.github.com/v3/issues/"
@@ -311,22 +310,22 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
 
 @defproc[(github-list-all-issues [api-req github-api-req/c]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-my-issues [api-req github-api-req/c]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-org-issues [api-req github-api-req/c]
                                  [organization string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-issues [api-req github-api-req/c]
                                   [repo-owner string?]
                                   [repo-name string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-create-issue [api-req github-api-req/c]
                               [repo-owner string?]
@@ -337,7 +336,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                               [#:milestone milestone string? ""]
                               [#:labels label (listof string?) null]
                               [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-edit-issue [api-req github-api-req/c]
                               [repo-owner string?]
@@ -348,34 +347,34 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                               [#:milestone milestone string? ""]
                               [#:labels label (listof string?) null]
                               [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-issue [api-req github-api-req/c]
                                 [repo-owner string?]
                                 [repo-name string?]
                                 [issue-number (or/c number? string?)]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-issue-comments [api-req github-api-req/c]
                                      [repo-owner string?]
                                      [repo-name string?]
                                      [issue-number (or/c number? string?)]
                                      [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-comments [api-req github-api-req/c]
                                     [repo-owner string?]
                                     [repo-name string?]
                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-comment [api-req github-api-req/c]
                              [repo-owner string?]
                              [repo-name string?]
                              [comment-id (or/c number? string?)]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-create-comment [api-req github-api-req/c]
                                 [repo-owner string?]
@@ -383,7 +382,7 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                                 [issue-number (or/c number? string?)]
                                 [comment-body string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-edit-comment [api-req github-api-req/c]
                               [repo-owner string?]
@@ -391,14 +390,14 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                               [comment-id (or/c number? string?)]
                               [comment-body string?]
                               [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-delete-comment [api-req github-api-req/c]
                                 [repo-owner string?]
                                 [repo-name string?]
                                 [comment-id (or/c number? string?)]
                                 [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @section{Issue Examples}
 @racketblock[
@@ -417,14 +416,14 @@ Furthermore, the Issues API uses custom media types. See @hyperlink["https://dev
                                      [repo-owner string?]
                                      [repo-name string?]
                                      [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-check-assignee [api-req github-api-req/c]
                                 [repo-owner string?]
                                 [repo-name string?]
                                 [user string?]
                                 [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @section{Git Data}
 Click @hyperlink["https://developer.github.com/v3/git/" "here"] for more information on the Git Data API.
@@ -434,7 +433,7 @@ Click @hyperlink["https://developer.github.com/v3/git/" "here"] for more informa
                           [repo-name string?]
                           [sha string?]
                           [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-create-blob [api-req github-api-req/c]
                              [repo-owner string?]
@@ -442,14 +441,14 @@ Click @hyperlink["https://developer.github.com/v3/git/" "here"] for more informa
                              [content string?]
                              [encoding string? "utf-8"]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-commit [api-req github-api-req/c]
                              [repo-owner string?]
                              [repo-name string?]
                              [sha string?]
                              [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-create-commit [api-req github-api-req/c]
                                [repo-owner string?]
@@ -458,53 +457,53 @@ Click @hyperlink["https://developer.github.com/v3/git/" "here"] for more informa
                                [tree string?]
                                [parents (listof string?)]
                                [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @section{Organizations}
 For more on Organizations, go @racket["https://developer.github.com/v3/orgs/" "here"]
 
 @defproc[(github-list-orgs [api-req github-api-req/c]
                            [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-all-orgs [api-req github-api-req/c]
                                [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-user-orgs [api-req github-api-req/c]
                                 [user string?]
                                 [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-org [api-req github-api-req/c]
                          [org string?]
                          [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-org-members [api-req github-api-req/c]
                          [org string?]
                          [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-list-pull-requests [api-req github-api-req/c]
                                     [repo-owner string?]
                                     [repo string?]
                                     [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @section{Users}
 @defproc[(github-get-user [api-req github-api-req/c]
                           [user string?]
                           [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-authenticated-user [api-req github-api-req/c]
                                         [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-all-users [api-req github-api-req/c]
                                [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 @section{Webhooks & Service Hooks}
 Webhooks are a sort-of user defined callback in the form of a listening webserver that github sends a
 message to whenever a certain type of event occurs.
@@ -520,7 +519,7 @@ To read more, see the @hyperlink["https://developer.github.com/webhooks/"
                                       [#:content-type content-type string? "form"]
                                       [#:secret secret string? ""]
                                       [#:insecure-ssl insecure-ssl string? "0"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-hook-repo [api-req github-api-req/c]
                            [repo-owner string?]
@@ -529,7 +528,7 @@ To read more, see the @hyperlink["https://developer.github.com/webhooks/"
                            [config jsexpr?]
                            [#:events events (listof string?) '("push")]
                            [#:active active boolean? #t])
-         api-response/c]
+         github-response?]
 The @racket[type] parameter must be the string @racket["web"] or a service name defined in @hyperlink["https://api.github.com/hooks"
                                                                                                       "this"] rather inconvenient JSON file.
 
@@ -541,38 +540,40 @@ name of the webhook.
                            [repo-owner string?]
                            [repo string?]
                            [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-get-hook [api-req github-api-req/c]
                           [repo-owner string?]
                           [repo string?]
                           [hook-id (or/c string? number?)]
                           [#:media-type media-type string? "application/vnd.github.v3+json"])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-test-push-hook [api-req github-api-req/c]
                                 [repo-owner string?]
                                 [repo string?]
                                 [hook-id (or/c string? number?)])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-ping-hook [api-req github-api-req/c]
                            [repo-owner string?]
                            [repo string?]
                            [hook-id (or/c string? number?)])
-         api-response/c]
+         github-response?]
 
 @defproc[(github-delete-hook [api-req github-api-req/c]
                              [repo-owner string?]
                              [repo string?]
                              [hook-id (or/c string? number?)])
-         api-response/c]
+         github-response?]
 @section{Webhooks Example}
 @racketblock[
  (define config (github-build-webhook-config "http://example.com"
                                              #:insecure-ssl "0"
                                              #:content-type "json"))
- (define hook-data (github-hook-repo github-req username my-repo "web" config))
+ (define hook (github-hook-repo github-req username my-repo "web" config))
+ (define hook-data (github-response-data hook))
+ 
  (define hook-id (hash-ref hook-data 'id))
  (github-get-hooks github-req username my-repo)
  (define del-hook (thunk (github-delete-hook github-req username my-repo hook-id)))
