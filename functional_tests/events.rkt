@@ -9,11 +9,11 @@
   (begin (set! requests-remaining (sub1 requests-remaining))
          requests-remaining))
 
-(let ([data (first (github-list-events gh "eu90h" "racket-github-api"))])
+(let ([data (first (github-response-data (github-list-events gh "eu90h" "racket-github-api")))])
   (sub1-requests-remaining!)
   (check-jsexpr? data)
   (check-equal? (hash-ref (hash-ref data 'repo) 'name) "eu90h/racket-github-api")
   (sub1-requests-remaining!))
 
-(check-jsexpr? (github-list-user-events gh "eu90h"))
+(check-jsexpr? (github-response-data (github-list-user-events gh "eu90h")))
 (sub1-requests-remaining!)

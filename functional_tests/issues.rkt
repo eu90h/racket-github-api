@@ -13,13 +13,14 @@
 (define repo "api-test-repo")
 (define issue-body "this is a test of the issues api")
 (define issue-title "testing-issues-api")
-(define issue-data (github-create-issue gh
+(define issue (github-create-issue gh
                                        user
                                        repo
                                        issue-title
                                        #:body issue-body
                                        #:assignee user
                                        #:labels (list "woo!" "test")))
+(define issue-data (github-response-data issue))
 (sub1-requests-remaining!)
 
 (check-jsexpr? issue-data)
@@ -29,37 +30,44 @@
 
 (define issue-number (hash-ref issue-data 'number))
 
-(check-equal? (github-list-issue-comments gh user repo issue-number) null)
+(check-equal? (github-response-data (github-list-issue-comments gh user repo issue-number)) null)
 (sub1-requests-remaining!)
 
 (check-equal? (hash-ref issue-data 'number)
-              (hash-ref (github-get-issue gh user repo issue-number) 'number))
+              (hash-ref (github-response-data (github-get-issue gh user repo issue-number)) 'number))
 (sub1-requests-remaining!)
 
 (define comment-body "have a tissue")
-(define comment-data (github-create-comment gh
+(define comment (github-create-comment gh
                                             user
                                             repo
                                             issue-number
                                             comment-body))
+(define comment-data (github-response-data comment))
+
 (check-equal? (hash-ref comment-data 'body) comment-body)
 (sub1-requests-remaining!)
 
 (define comment-id (hash-ref comment-data 'id))
 
 (define new-comment-body "here's a thought: blah blah blah")
-(define new-comment-data (github-edit-comment gh user repo comment-id new-comment-body))
+(define new-comment (github-edit-comment gh user repo comment-id new-comment-body))
+(define new-comment-data (github-response-data new-comment))
+
 (check-equal? (hash-ref new-comment-data 'body) new-comment-body)
 (sub1-requests-remaining!)
 
-(check-equal? (github-get-comment gh user repo comment-id) new-comment-data)
+(check-equal? (github-response-data (github-get-comment gh user repo comment-id)) new-comment-data)
 (sub1-requests-remaining!)
 
 (check-status-code (github-delete-comment gh user repo comment-id) 204)
 (sub1-requests-remaining!)
 
-(check-equal? (hash-ref (github-edit-issue gh user repo issue-number #:state "closed") 'state) "closed")
+(check-equal? (hash-ref
+               (github-response-data (github-edit-issue gh user repo issue-number #:state "closed"))
+               'state)
+              "closed")
 (sub1-requests-remaining!)
 
-(check-jsexpr? (github-list-issues gh user repo))
+(check-jsexpr? (github-response-data (github-list-issues gh user repo)))
 (sub1-requests-remaining!)

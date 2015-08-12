@@ -15,19 +15,21 @@
 (define config (github-build-webhook-config "http://example.com"
                                             #:insecure-ssl "0"
                                             #:content-type "json"))
-(define hook-data (github-hook-repo gh user repo "web" config))
+(define hook (github-hook-repo gh user repo "web" config))
+(define hook-data (github-response-data hook))
 (sub1-requests-remaining!)
 
 (check-jsexpr? hook-data)
 (check-equal? (hash-ref hook-data 'name) "web")
 
 (define hook-id (hash-ref hook-data 'id))
-(let ([resp (github-get-hooks gh user repo)])
-  (check-true (list? resp))
-  (check-eq? (length resp) 1)
+(let* ([resp (github-get-hooks gh user repo)]
+       [resp-data (github-response-data resp)])
+  (check-true (list? resp-data))
+  (check-eq? (length resp-data) 1)
   (sub1-requests-remaining!))
 
-(check-equal? (hash-ref (github-get-hook gh user repo hook-id) 'url)
+(check-equal? (hash-ref (github-response-data (github-get-hook gh user repo hook-id)) 'url)
               (hash-ref hook-data 'url))
 (sub1-requests-remaining!)
 
