@@ -15,5 +15,5 @@ Installation
 ============
 Run `raco pkg install git://github.com/eu90h/racket-github-api` or use DrRacket.
 
-To remove, execute `raco remove racket-github-api`
+To remove, execute `raco pkg remove racket-github-api`
 
