@@ -1,5 +1,5 @@
 #lang racket
-(require json "../main.rkt" "../../identity.rkt" rackunit "utils.rkt")
+(require json "../main.rkt" "identity.rkt" rackunit "utils.rkt")
 
 (define gh (github-api personal-token-id))
 
