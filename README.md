@@ -17,3 +17,6 @@ Run `raco pkg install git://github.com/eu90h/racket-github-api` or use DrRacket.
 
 To remove, execute `raco pkg remove racket-github-api`
 
+A Note on Testing
+=================
+To run the functional tests require a valid GitHub username & personal-access-token/password. If you wish to run the tests, edit the credentials in `functional_tests/identity.rkt`.
