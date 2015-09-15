@@ -7,7 +7,7 @@
 (require github-api)
 
 (define personal-token "your-token-here")
-(define username "your-usernmae-here")
+(define username "your-username-here")
 (define personal-token-id (github-identity 'personal-token (list username personal-token)))
 
 (define password "")
