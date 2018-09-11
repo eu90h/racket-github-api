@@ -18,12 +18,12 @@ Before you begin making requests to the GitHub api, you must create an identity.
 @defstruct[github-identity ([type symbol?] [data list?])]{
  This struct holds your GitHub identity.
 
- @racket[type] must be one of the following symbols: @racket['password 'personal-access-token 'oauth]
+ @racket[type] must be one of the following symbols: @racket['password 'personal-token 'oauth]
  
  @racket['password] authentication
  simply uses your GitHub username and password.
 
- @racket['personal-access-token] authentication allows you
+ @racket['personal-token] authentication allows you
  to send your GitHub username and a personal access token (created on your GitHub settings page.)
 
  @racket['oauth] uses an OAuth token for authorization.

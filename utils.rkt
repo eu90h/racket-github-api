@@ -4,10 +4,10 @@
  github-api-req/c
  github-api-resp/c
  (contract-out
-  [struct github-identity ([type symbol?] [data (listof string?)])]
+  [struct github-identity ([type github-identity-type/c] [data (listof string?)])]
   [struct github-response ([code number?] [data jsexpr?])]
   [get-status-code (-> string? number?)]
-  [make-auth-header (-> symbol? (listof string?) string?)]
+  [make-auth-header (-> github-identity-type/c (listof string?) string?)]
   [port->jsexpr (-> input-port? jsexpr?)]
   [->string (-> any/c string?)]))
 
@@ -17,6 +17,9 @@
 (struct github-response (code data))
 (define github-api-resp/c github-response?)
 (define github-api-req/c (->* (string?) [#:method string? #:data string? #:media-type string?] github-api-resp/c))
+
+(define github-identity-type/c
+  (or/c 'password 'personal-token 'oauth2))
 
 (module+ test (require rackunit))
 
